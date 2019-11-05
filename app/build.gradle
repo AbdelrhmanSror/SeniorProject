@@ -1,0 +1,66 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'com.google.gms.google-services'
+
+android {
+    compileSdkVersion androidcompileSdkVersion
+    buildToolsVersion androidbuildToolsVersion
+    defaultConfig {
+        minSdkVersion androidminSdkVersion
+        targetSdkVersion androidtargetSdkVersion
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        debug {
+
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    androidExtensions {
+        experimental = true
+    }
+    dataBinding {
+        enabled = true
+    }
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.12'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
+    //google directions
+    implementation 'com.google.maps:google-maps-services:0.10.1'
+    //map utitlity
+    //firestore
+    implementation 'com.google.firebase:firebase-firestore:21.2.1'
+
+    implementation 'com.google.maps.android:android-maps-utils:0.5'
+    implementation lifecycleExtension
+    implementation viewModel
+    implementation glide
+    implementation constriantLayout
+    implementation navUiKtx
+    implementation navFragmentKtx
+    implementation coreKtx
+    implementation appCompat
+    implementation mapPlayService
+    implementation materialDesign
+    implementation placesLibrary
+    implementation firbaseAuth
+    implementation firebaseUi
+
+}

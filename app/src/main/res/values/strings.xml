@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_activity_maps">Map</string>
+    <string name="search_hint"> Search For Location</string>
+    <string name="normal_map">Normal Map</string>
+    <string name="hybrid_map">Hybrid Map</string>
+    <string name="satellite_map">Satellite Map</string>
+    <string name="lat_long_snippet">Lat: %1$.5f, Long: %2$.5f</string>
+    <string name="dropped_pin">Dropped Pin</string>
+    <string name="gps_enable">Your GPS seems to be disabled, do you want to enable it?</string>
+    <string name="gps_enable_title">Gps Enabling</string>
+    <string name="positive_gps_enable_answer">Yes</string>
+    <string name="negative_gps_enable_answer">No</string>
+    <string name="permission_denied">Permission denied</string>
+    <string name="permission_clarify">this permission is important to access location</string>
+    <string name="accept_permission"> Ok enable</string>
+    <string name="refuse_permission">Not now</string>
+    <string name="enable_permission_settings">Go to settings and enable location  permissions</string>
+    <string name="go_to_settings">Go to settings</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="close_drawer">Close Drawer</string>
+    <string name="open_drawer">Open Drawer</string>
+    <string name="PlaceApiKey">AIzaSyA0eqlJfsa4Hfq6Z5cIMk0bXPlVJu21J5g</string>
+
+
+</resources>

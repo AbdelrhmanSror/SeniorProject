@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:startDestination="@id/authFragment">
+    <fragment
+        android:id="@+id/authFragment"
+        android:name="com.example.home.ui.authuntication.AuthFragment"
+        android:label="AuthFragment" >
+        <action
+            android:id="@+id/action_authFragment_to_navMapFragment"
+            app:destination="@id/navMapFragment"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out" />
+    </fragment>
+    <fragment
+        android:id="@+id/navMapFragment"
+        android:name="com.example.home.ui.mapHome.NavMapFragment"
+        android:label="NavMapFragment" >
+        <action
+            android:id="@+id/action_navMapFragment_to_authFragment"
+            app:destination="@id/authFragment" />
+        <action
+            android:id="@+id/action_navMapFragment_to_searchFragment"
+            app:destination="@id/searchFragment"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_in_left" />
+    </fragment>
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.example.home.ui.search.SearchFragment"
+        android:label="SearchFragment" >
+        <action
+            android:id="@+id/action_searchFragment_to_navMapFragment"
+            app:destination="@id/navMapFragment"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_in_left" />
+    </fragment>
+</navigation>

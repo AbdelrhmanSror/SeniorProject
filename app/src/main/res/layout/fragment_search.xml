@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+<variable
+    name="searchViewModel"
+    type="com.example.home.viewmodel.SearchViewModel" />
+    </data>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorPrimary">
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/large_margin"
+            app:cardCornerRadius="@dimen/medium_margin">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/medium_margin"
+                android:layout_marginEnd="@dimen/medium_margin"
+                android:layout_marginBottom="@dimen/medium_margin"
+                android:background="@color/white"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <EditText
+                    android:id="@+id/input_edit_text"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/white"
+                    android:hint="@string/search_hint"
+                    android:imeOptions="actionSearch"
+                    android:maxLines="1"
+                    app:layout_constraintBottom_toBottomOf="@+id/backButton"
+                    app:layout_constraintEnd_toStartOf="@+id/imageButton"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toEndOf="@+id/backButton"
+                    app:layout_constraintTop_toTopOf="@+id/backButton"
+                    app:layout_constraintVertical_bias="1.0" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/list_search"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="@dimen/large_margin"
+                    android:layout_marginEnd="@dimen/large_margin"
+                    android:background="@color/white"
+                    android:visibility="visible"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/divider3"
+                    tools:visibility="visible" />
+
+                <ImageButton
+                    android:id="@+id/backButton"
+                    android:onClick="@{()->searchViewModel.onBackDrawablePressed()}"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:backgroundTint="@color/white"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_arrow_back_black_24dp" />
+
+                <ImageButton
+                    android:id="@+id/imageButton"
+                    app:searchVoiceAnim="@{searchViewModel.searchVoiceAnimation}"
+                    android:layout_width="wrap_content"
+                    android:tag="search"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/white"
+                    app:layout_constraintBottom_toBottomOf="@+id/input_edit_text"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/input_edit_text"
+                    app:layout_constraintVertical_bias="1.0"
+                    app:srcCompat="@drawable/search_voice_animation" />
+
+                <View
+                    android:id="@+id/divider3"
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:layout_marginTop="1dp"
+                    android:background="?android:attr/listDivider"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/input_edit_text" />
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </FrameLayout>
+
+</layout>
