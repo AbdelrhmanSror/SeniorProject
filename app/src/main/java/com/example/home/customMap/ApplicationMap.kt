@@ -28,7 +28,6 @@ import com.google.maps.GeoApiContext
 import com.google.maps.PendingResult
 import com.google.maps.android.clustering.ClusterManager
 import com.google.maps.model.DirectionsResult
-import com.google.maps.model.DirectionsRoute
 import kotlinx.coroutines.*
 import java.util.*
 
@@ -59,8 +58,8 @@ class ApplicationMap private constructor(
     private val job = Job()
     private val coroutineScope = CoroutineScope(Dispatchers.Main + job)
 
-    private val markerAnimationUtility: MarkerAnimationUtility by lazy {
-        MarkerAnimationUtility.create(map, application)
+    private val markerAnimation: MarkerAnimation by lazy {
+        MarkerAnimation.create(map, application,lifecycleOwner)
     }
 
     companion object {
@@ -346,8 +345,8 @@ class ApplicationMap private constructor(
                     result?.let {
                         coroutineScope.launch {
                             withContext(Dispatchers.Main) {
-                                    markerAnimationUtility.startMarkerAnimation(marker, it)
-                                   // markerAnimationUtility.drawPolyLineOnMap(it)
+                                    markerAnimation.startMarkerAnimation(marker, it)
+                                   // markerAnimation.drawPolyLineOnMap(it)
 
 
                             }

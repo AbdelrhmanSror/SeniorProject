@@ -6,6 +6,10 @@ import android.os.SystemClock
 import android.util.Log
 import android.view.animation.LinearInterpolator
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.OnLifecycleEvent
 import com.example.home.R
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -18,18 +22,31 @@ import com.google.maps.model.DirectionsResult
 /**
  * this class is responsible for making marker animation between two location
  */
-class MarkerAnimationUtility private constructor(
+class MarkerAnimation private constructor(
+    lifecycleOwner: LifecycleOwner,
     private val map: GoogleMap,
     private val application: Application
-) {
+) : LifecycleObserver {
 
     private val interpolator = LinearInterpolator()
     private val listOfCurrentPolyline = arrayListOf<Polyline>()
+    private val handler = Handler()
+    private lateinit var runnable: Runnable
+
 
     companion object {
-        fun create(map: GoogleMap, application: Application): MarkerAnimationUtility {
-            return MarkerAnimationUtility(map, application)
+        fun create(
+            map: GoogleMap,
+            application: Application,
+            lifecycleOwner: LifecycleOwner
+        ): MarkerAnimation {
+            return MarkerAnimation(lifecycleOwner, map, application)
         }
+    }
+
+    init {
+        //register this class as life cycle observer
+        lifecycleOwner.lifecycle.addObserver(this)
     }
 
     fun startMarkerAnimation(marker: Marker?, result: DirectionsResult) {
@@ -37,7 +54,6 @@ class MarkerAnimationUtility private constructor(
         var start = SystemClock.uptimeMillis()
         var startIndex = 0
         var endIndex = 1
-        val handler = Handler()
         val listOfLatLng = PolyLineDecoder.startDecode(result)
         //crating polyline on current user position to update it late as animation goes on
         val polyline = map
@@ -46,7 +62,7 @@ class MarkerAnimationUtility private constructor(
                     .clickable(true)
                     .color(ContextCompat.getColor(application, R.color.colorPrimary))
             )
-        handler.post(object : Runnable {
+        runnable = object : Runnable {
             override fun run() {
                 //as long as the  end index did not equal to size  of list we continue as normal
                 if (endIndex != listOfLatLng.size) {
@@ -70,13 +86,15 @@ class MarkerAnimationUtility private constructor(
                         endIndex++
                     }
                     marker?.position = interpolationValue
-                    updatePolyline(interpolationValue,polyline)
+                    updatePolyline(interpolationValue, polyline)
 
 
                     handler.postDelayed(this, 16)
                 }
             }
-        })
+        }
+        handler.post(runnable)
+
 
     }
 
@@ -92,22 +110,26 @@ class MarkerAnimationUtility private constructor(
         startPosition: LatLng,
         endPosition: LatLng,
         elapsedTime: Long,
-        @Suppress("SameParameterValue") interpolationTime: Int, onTimeInterpolationFinished: () -> Unit
+        @Suppress("SameParameterValue") interpolationTime: Int,
+        onTimeInterpolationFinished: () -> Unit
     ): LatLng {
         val t = interpolator.getInterpolation(elapsedTime.toFloat() / interpolationTime)
-        Log.v("latlng","end lat is ${endPosition.latitude} end long is ${endPosition.longitude}")
-        Log.v("latlng","start lat is ${startPosition.latitude} start long is ${startPosition.longitude}")
-        Log.v("latlng","interpolation is $t")
+        Log.v("latlng", "end lat is ${endPosition.latitude} end long is ${endPosition.longitude}")
+        Log.v(
+            "latlng",
+            "start lat is ${startPosition.latitude} start long is ${startPosition.longitude}"
+        )
+        Log.v("latlng", "interpolation is $t")
 
-
-        // val lat =(((endPosition.latitude-startPosition.latitude)*((startPosition.longitude+t)-startPosition.longitude))/(endPosition.longitude-startPosition.longitude))+startPosition.latitude
-        //val lng =(((endPosition.longitude-startPosition.longitude)*((startPosition.latitude+t)-startPosition.latitude))/(endPosition.latitude-startPosition.latitude))+startPosition.longitude
 
         val lat =
-            t * endPosition.latitude + (1 - t) * startPosition.latitude
+            (((endPosition.latitude - startPosition.latitude) * ((startPosition.longitude + t) - startPosition.longitude)) / (endPosition.longitude - startPosition.longitude)) + startPosition.latitude
         val lng =
-            t * endPosition.longitude + (1 - t) * startPosition.longitude
-        Log.v("latlng","end lat after is ${lat} end long after is ${lng}")
+            (((endPosition.longitude - startPosition.longitude) * ((startPosition.latitude + t) - startPosition.latitude)) / (endPosition.latitude - startPosition.latitude)) + startPosition.longitude
+
+        //val lat = endPosition.latitude + (1 - t) * startPosition.latitude
+        //val lng = endPosition.longitude + (1 - t) * startPosition.longitude
+        Log.v("latlng", "end lat after is ${lat} end long after is ${lng}")
 
         if (t >= 1.0) {
             onTimeInterpolationFinished()
@@ -157,7 +179,7 @@ class MarkerAnimationUtility private constructor(
     /**
      *this just remove any previous polyline if exist
      */
-    private fun removePolylines(){
+    private fun removePolylines() {
         if (!listOfCurrentPolyline.isNullOrEmpty()) {
             listOfCurrentPolyline.forEach {
                 it.remove()
@@ -165,4 +187,9 @@ class MarkerAnimationUtility private constructor(
         }
     }
 
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    private fun onDestroy() {
+        if (::runnable.isInitialized)
+            handler.removeCallbacks(runnable)
+    }
 }
