@@ -29,6 +29,9 @@ fun setCircularImageUri(imageView: ImageView, imageUri: Uri?) {
 
 }
 
+/**
+ * binding adapter to change the image of floating action button based on gps is enabled or disabled
+ */
 @BindingAdapter("fabDrawable")
 fun fabDrawable(fab: FloatingActionButton, enabled: Boolean) {
     if (enabled) {
@@ -39,20 +42,11 @@ fun fabDrawable(fab: FloatingActionButton, enabled: Boolean) {
     }
 }
 
-@BindingAdapter("initMap")
-fun initMap(mapView: MapView?, latLng: LatLng) {
 
-    if (mapView != null) {
-        mapView.onCreate(Bundle())
-        mapView.getMapAsync { googleMap ->
-            // Add a marker
-            googleMap.addMarker(MarkerOptions().position(latLng).title("Marker in India"))
-        }
-    }
-}
-
-
-//start animation of like or dislike audio
+/**
+ * binding adapter to change the image of search button in search fragment so whne user start typing we animate it to voice image
+ * and visa verse
+ */
 @BindingAdapter("searchVoiceAnim")
 fun startSearchVoiceAnimation(imageButton: ImageButton, typing: Boolean) {
     imageButton.apply {

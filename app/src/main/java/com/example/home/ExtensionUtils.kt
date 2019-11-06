@@ -29,6 +29,7 @@ import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.google.android.material.navigation.NavigationView
@@ -50,18 +51,26 @@ fun Context.startForeground(foregroundIntent: Intent) {
     }
 }
 
-fun ImageView.setImageUri(uri: Uri?, onImageLoaded:()->Unit) {
-    Glide.with(this.context).load(uri).into(object :CustomTarget<Drawable>(){
-        override fun onLoadCleared(placeholder: Drawable?) {
-        }
-        override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
-           this@setImageUri.setImageDrawable(resource)
-            onImageLoaded()
-        }
-    })
+/**
+ * extension function to load image using glide into image view with
+ */
+fun ImageView.setImageUri(uri: Uri?, onImageLoaded: () -> Unit) {
+    Glide.with(this.context).load(uri)
+        .apply(RequestOptions.circleCropTransform().apply { RequestOptions.centerInsideTransform() })
+        .into(object : CustomTarget<Drawable>() {
+            override fun onLoadCleared(placeholder: Drawable?) {
+            }
+
+            override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
+                this@setImageUri.setImageDrawable(resource)
+                onImageLoaded()
+            }
+        })
 }
 
-// extension function to check if user granted the permissions
+/**
+ * extension function to check if user granted the permissions
+ */
 fun Application.isLocationPermissionGranted(): Boolean {
     return ContextCompat.checkSelfPermission(
         this,
@@ -77,7 +86,9 @@ fun Application.isGpsEnabled(): Boolean {
     return true
 }
 
-//rounded corner for nav view
+/**
+ * extension function to make rounded corner for navigation  view
+ */
 fun NavigationView.roundedCorner(radius: Float) {
     val navViewBackground = this.background as MaterialShapeDrawable
     navViewBackground.shapeAppearanceModel = navViewBackground.shapeAppearanceModel
@@ -87,7 +98,9 @@ fun NavigationView.roundedCorner(radius: Float) {
         .build()
 }
 
-//initialize drawer layout and setup it with toolbar and back button
+/**
+ * extension function to initialize drawer layout and setup it with toolbar and back button
+ */
 fun DrawerLayout.initialize(fragment: Fragment, toolbar: androidx.appcompat.widget.Toolbar) {
     val toggle = object :
         ActionBarDrawerToggle(
@@ -118,10 +131,13 @@ fun DrawerLayout.initialize(fragment: Fragment, toolbar: androidx.appcompat.widg
     toggle.syncState()
 }
 
-//hiding the keyboard
-fun Activity.hideKeyBoard(){
- val inputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+/**
+ * extension function for hiding the keyboard after finishing from typing hiding the keyboard
+ */
+fun Activity.hideKeyBoard() {
+    val inputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
     inputMethodManager.hideSoftInputFromWindow(
-        currentFocus?.windowToken, 0)
+        currentFocus?.windowToken, 0
+    )
 }
 

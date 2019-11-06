@@ -9,7 +9,6 @@ import android.provider.Settings
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import android.util.Log
 import android.view.*
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -25,8 +24,6 @@ import com.firebase.ui.auth.AuthUI
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.firestore.FirebaseFirestore
@@ -243,7 +240,7 @@ class NavMapFragment : Fragment(), OnMapReadyCallback {
             }
         })
         mapViewModel.onLocationChangeListener {
-            //track the current location of a user then push into realtime time database so it will be shared across all devices
+            //track the current location of a user then push into firestore database so it will be shared across all devices
             fireStore.set(it)
         }
         if (mapSearchDetail != null) {

@@ -1,14 +1,10 @@
 package com.example.home.viewmodel
 
-import android.app.Activity
 import android.app.Application
-import android.util.Log
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.*
 import com.example.home.customMap.ApplicationMap
 import com.example.home.models.MapModel
 import com.example.home.models.UserModel
-
 import com.google.android.gms.maps.GoogleMap
 import com.google.firebase.auth.FirebaseAuth
 
@@ -25,8 +21,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     private val _onGpsChange = MutableLiveData<Boolean>()
     //live data to check if permission is granted or not and if not we request it again
     val onNavigationFabDrawableChange = Transformations.map(_onGpsChange) {
-        Log.v("placesApi", "ic_search_black_24dp chnage ")
-
         it
     }
 
@@ -58,7 +52,9 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
     }
 
-    //every time location is changing we end data container lat and long of new location
+    /**
+     *every time location is changing we call this method and pass it
+     */
     fun onLocationChangeListener(update: (mapModel: MapModel) -> Unit) {
         applicationMap.requestLocationUpdates { mapModel ->
             this.mapModel=mapModel
@@ -66,12 +62,18 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /**
+     * we call this function if we want to go to specific place and give it map model parameter which represent la and lng on map
+     */
     fun goToSpecificPlace(mapModel: MapModel): Boolean {
         val isAllPermissionGranted = applicationMap.goToSpecificPlace(mapModel)
         _onGpsChange.value = isAllPermissionGranted
         return isAllPermissionGranted
     }
 
+    /**
+     * we call this function to go to user current location
+     */
     fun goToCurrentLocation(): Boolean {
         val isAllPermissionGranted = applicationMap.loadCurrentDeviceLocation()
         _onGpsChange.value = isAllPermissionGranted

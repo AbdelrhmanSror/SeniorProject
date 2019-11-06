@@ -15,6 +15,7 @@ class SearchViewModel : ViewModel() {
     val searchVoiceAnimation: LiveData<Boolean>
         get() = _searchVoiceAnimation
 
+
     fun startNavigation(mapModel: MapModel) {
         _navigateToMap.value = mapModel
     }

@@ -111,6 +111,7 @@ class ApplicationMap private constructor(
 
     /**
      * will return true if all permission is granted and gps is enabled
+     * also will set the current device location on the map
      */
     fun loadCurrentDeviceLocation(): Boolean {
         if (!application.isGpsEnabled() || !application.isLocationPermissionGranted()) {
@@ -157,8 +158,10 @@ class ApplicationMap private constructor(
             }
         }
     }
-
-    //listener for location changes
+    /**
+     *listener for location changes
+     * here we can update the marker position on map
+     */
     fun requestLocationUpdates(update: (mapModel: MapModel) -> Unit) {
         val request = LocationRequest()
         request.interval = 10000
@@ -187,9 +190,13 @@ class ApplicationMap private constructor(
         )
     }
 
+    /**
+     * function to get location details using lat and lng of the location
+     */
     private fun getLocationDetails(lat: Double, long: Double): String? {
         val geo = Geocoder(application, Locale.getDefault())
-        val addresses = geo.getFromLocation(lat, long, 1)
+        //here we specify the lat and lng and max result to get
+        val addresses = geo.getFromLocation(lat, long,1)
         if (!addresses.isNullOrEmpty()) {
             return addresses[0].getAddressLine(0)
             //yourtextboxname.setText(addresses.get(0).getFeatureName() + ", " + addresses.get(0).getLocality() +", " + addresses.get(0).getAdminArea() + ", " + addresses.get(0).getCountryName());
@@ -258,7 +265,9 @@ class ApplicationMap private constructor(
     }
 
 
-    //loading vector image as marker
+    /**
+     * loading vector image as marker
+     */
     private fun Int.bitmapDescriptorFromVector(context: Context): BitmapDescriptor? {
         return ContextCompat.getDrawable(context, this)?.run {
             setBounds(0, 0, intrinsicWidth, intrinsicHeight)
@@ -296,6 +305,10 @@ class ApplicationMap private constructor(
     }
 
 
+    /**
+     * drawing cluster image on map to represent current user location
+     * we can call this method to redraw cluster on map whenever the user current location changes
+     */
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     private fun setUpCluster() {
         requestCurrentDeviceLocation { location ->
@@ -306,7 +319,6 @@ class ApplicationMap private constructor(
             clusterMarkerManager.renderer = customUserManagerRenderer
 
             // Point the map's listeners at the listeners implemented by the cluster
-            // manager.
             map.setOnCameraIdleListener(clusterMarkerManager)
             map.setOnMarkerClickListener(clusterMarkerManager)
 
@@ -346,7 +358,7 @@ class ApplicationMap private constructor(
                         coroutineScope.launch {
                             withContext(Dispatchers.Main) {
                                     markerAnimation.startMarkerAnimation(marker, it)
-                                   // markerAnimation.drawPolyLineOnMap(it)
+                                    //markerAnimation.drawPolyLineOnMap(it)
 
 
                             }
