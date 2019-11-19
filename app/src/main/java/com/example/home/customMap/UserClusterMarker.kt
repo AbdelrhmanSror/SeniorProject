@@ -6,8 +6,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.clustering.ClusterItem
 
 class UserClusterMarker(
-    var mapModel: MapModel,
-    val user: UserModel
+    var mapModel: MapModel
     , private val snippet: String? = null
 ) : ClusterItem {
     override fun getSnippet(): String? {
@@ -15,7 +14,7 @@ class UserClusterMarker(
     }
 
     override fun getTitle(): String? {
-        return user.userName
+        return mapModel.userName
     }
 
     override fun getPosition(): LatLng {

@@ -101,9 +101,6 @@ class AutoCompleteSearch private constructor( context: Context) {
             }
         }
 
-
-
-
 }
 
 

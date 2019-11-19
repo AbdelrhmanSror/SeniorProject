@@ -14,8 +14,6 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
 import com.example.home.R
-import com.example.home.isGpsEnabled
-import com.example.home.isLocationPermissionGranted
 import com.example.home.models.MapModel
 import com.example.home.models.UserModel
 import com.example.home.ui.mapHome.NavMapFragment
@@ -30,12 +28,12 @@ import com.google.maps.android.clustering.ClusterManager
 import com.google.maps.model.DirectionsResult
 import kotlinx.coroutines.*
 import java.util.*
+import kotlin.collections.HashMap
 
 class ApplicationMap private constructor(
     private val lifecycleOwner: LifecycleOwner,
     private val application: Application,
-    private val map: GoogleMap,
-    private val user: UserModel
+    private var map: GoogleMap
 ) : LifecycleObserver {
 
 
@@ -51,7 +49,8 @@ class ApplicationMap private constructor(
     }
     private var marker: Marker? = null
 
-    private lateinit var currentUserClusterMarker: UserClusterMarker
+    private val listOfCurrentUsers = HashMap<String, UserClusterMarker>()
+
 
     private lateinit var customUserManagerRenderer: CustomUserManagerRenderer
 
@@ -59,7 +58,7 @@ class ApplicationMap private constructor(
     private val coroutineScope = CoroutineScope(Dispatchers.Main + job)
 
     private val markerAnimation: MarkerAnimation by lazy {
-        MarkerAnimation.create(map, application,lifecycleOwner)
+        MarkerAnimation.create(map, application, lifecycleOwner)
     }
 
     companion object {
@@ -76,10 +75,9 @@ class ApplicationMap private constructor(
         fun create(
             lifecycleOwner: LifecycleOwner,
             application: Application,
-            map: GoogleMap,
-            user: UserModel
+            map: GoogleMap
         ): ApplicationMap {
-            return ApplicationMap(lifecycleOwner, application, map, user)
+            return ApplicationMap(lifecycleOwner, application, map)
         }
 
 
@@ -87,8 +85,20 @@ class ApplicationMap private constructor(
 
 
     init {
-        //register this class as life cycle observer
         lifecycleOwner.lifecycle.addObserver(this)
+        setupMap()
+    }
+
+    fun updateMapRef(map: GoogleMap) {
+        this.map = map
+        setupMap()
+    }
+
+    private fun setupMap() {
+        setOnPoiClick()
+        setMapStyle()
+        setOnMapLongClick()
+        setUpCluster()
     }
 
     //enable normal style of map
@@ -113,10 +123,7 @@ class ApplicationMap private constructor(
      * will return true if all permission is granted and gps is enabled
      * also will set the current device location on the map
      */
-    fun loadCurrentDeviceLocation(): Boolean {
-        if (!application.isGpsEnabled() || !application.isLocationPermissionGranted()) {
-            return false
-        }
+    fun loadCurrentDeviceLocation() {
         /*
          * Get the best and most recent location of the device, which may be null in rare
          * cases when a location is not available.
@@ -137,12 +144,11 @@ class ApplicationMap private constructor(
             )
 
         }
-        return true
     }
 
     /**
      * request the current user location
-     * this function accept higher order function to execute when thelocationn is ready
+     * this function accept higher order function to execute when the location is ready
      */
     private fun requestCurrentDeviceLocation(onLocationResult: ((Location) -> Unit)) {
         val locationResult = fusedLocationProviderClient.lastLocation
@@ -158,11 +164,13 @@ class ApplicationMap private constructor(
             }
         }
     }
+
     /**
      *listener for location changes
      * here we can update the marker position on map
      */
-    fun requestLocationUpdates(update: (mapModel: MapModel) -> Unit) {
+    //@RequiresPermission(value = Manifest.permission.ACCESS_FINE_LOCATION)
+    fun setOntLocationChangeListener(update: (mapModel: MapModel) -> Unit) {
         val request = LocationRequest()
         request.interval = 10000
         request.fastestInterval = 5000
@@ -176,15 +184,10 @@ class ApplicationMap private constructor(
                             it.lastLocation.latitude,
                             it.lastLocation.longitude
                         )
-                        //update the current user cluster position
-                        currentUserClusterMarker.mapModel = mapModel
-                        customUserManagerRenderer.updateMarkerPosition(currentUserClusterMarker)
                         update(mapModel)
 
                     }
-
                 }
-
             },
             null
         )
@@ -196,7 +199,7 @@ class ApplicationMap private constructor(
     private fun getLocationDetails(lat: Double, long: Double): String? {
         val geo = Geocoder(application, Locale.getDefault())
         //here we specify the lat and lng and max result to get
-        val addresses = geo.getFromLocation(lat, long,1)
+        val addresses = geo.getFromLocation(lat, long, 1)
         if (!addresses.isNullOrEmpty()) {
             return addresses[0].getAddressLine(0)
             //yourtextboxname.setText(addresses.get(0).getFeatureName() + ", " + addresses.get(0).getLocality() +", " + addresses.get(0).getAdminArea() + ", " + addresses.get(0).getCountryName());
@@ -208,7 +211,8 @@ class ApplicationMap private constructor(
     /**
      * will return true if all permission is granted and gps is enabled
      */
-    fun goToSpecificPlace(mapModel: MapModel): Boolean {
+    //@RequiresPermission(value = Manifest.permission.ACCESS_FINE_LOCATION)
+    fun goToSpecificPlace(mapModel: MapModel) {
         marker?.remove()
         val latLng = LatLng(mapModel.latitude, mapModel.longitude)
         marker = map.addMarker(
@@ -217,19 +221,17 @@ class ApplicationMap private constructor(
                     getLocationDetails(mapModel.latitude, mapModel.longitude)
                         ?: application.getString(R.string.dropped_pin)
                 ).icon(
-                    BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)
+                    BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)
                 )
         )
         map.moveCamera(CameraUpdateFactory.newLatLng(latLng))
         map.animateCamera(CameraUpdateFactory.zoomTo(13f))
-        return !(!application.isGpsEnabled() || !application.isLocationPermissionGranted())
     }
 
     /**
      * This click listener places a marker on the mMap immediately when the user clicks on a POI.
      * The click listener also displays an info window that contains the POI name
      */
-    @OnLifecycleEvent(Lifecycle.Event.ON_START)
     private fun setOnPoiClick() {
         map.setOnPoiClickListener {
             marker?.remove()
@@ -245,7 +247,6 @@ class ApplicationMap private constructor(
         }
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_START)
     private fun setMapStyle() {
         try {
             // Customize the styling of the base mMap using a JSON object defined
@@ -282,7 +283,6 @@ class ApplicationMap private constructor(
      *when user long click on a location on the mMap i move marker to that location
      * also changing the color of marker
      */
-    @OnLifecycleEvent(Lifecycle.Event.ON_START)
     private fun setOnMapLongClick() {
         map.setOnMapLongClickListener {
             marker?.remove()
@@ -304,31 +304,50 @@ class ApplicationMap private constructor(
         }
     }
 
-
     /**
      * drawing cluster image on map to represent current user location
      * we can call this method to redraw cluster on map whenever the user current location changes
+     * this function accept [mapModel] that represent the user current location if it was null then it will fetch the user current location
+     * otherwise it will use it and if the marker was not initialed it will initialize it otherwise it will update it
      */
-    @OnLifecycleEvent(Lifecycle.Event.ON_START)
     private fun setUpCluster() {
-        requestCurrentDeviceLocation { location ->
-            // Initialize the manager with the context and the map.
-            val clusterMarkerManager = ClusterManager<UserClusterMarker>(application, map)
-            customUserManagerRenderer =
-                CustomUserManagerRenderer(application, map, clusterMarkerManager)
-            clusterMarkerManager.renderer = customUserManagerRenderer
 
-            // Point the map's listeners at the listeners implemented by the cluster
-            map.setOnCameraIdleListener(clusterMarkerManager)
-            map.setOnMarkerClickListener(clusterMarkerManager)
+        // Initialize the manager with the context and the map.
+        val clusterMarkerManager = ClusterManager<UserClusterMarker>(application, map)
+        customUserManagerRenderer =
+            CustomUserManagerRenderer(application, map, clusterMarkerManager)
+        clusterMarkerManager.renderer = customUserManagerRenderer
 
-            currentUserClusterMarker =
-                UserClusterMarker(MapModel(location.latitude, location.longitude), user)
-            clusterMarkerManager.addItem(currentUserClusterMarker)
-            clusterMarkerManager.cluster()
+        /*  // Point the map's listeners at the listeners implemented by the cluster
+          //map.setOnCameraIdleListener(clusterMarkerManager)
+          //map.setOnMarkerClickListener(clusterMarkerManager)
+          requestCurrentDeviceLocation { location ->
+              currentUserClusterMarker =
+                  UserClusterMarker(MapModel(location.latitude, location.longitude), user)
+              clusterMarkerManager.addItem(currentUserClusterMarker)
+              clusterMarkerManager.cluster()
+          }*/
+    }
+
+    fun updateCluster(userId: String, mapModel: MapModel) {
+
+        //update the current user cluster position if its not initialized then initialize it with current position
+        /* if (!::currentUserClusterMarker.isInitialized) {
+             currentUserClusterMarker = UserClusterMarker(mapModel, user)
+         } else {
+             currentUserClusterMarker.mapModel = mapModel
+         }
+         customUserManagerRenderer.updateMarkerPosition(currentUserClusterMarker)*/
+        if (!listOfCurrentUsers.containsKey(userId)) {
+            listOfCurrentUsers[userId] = UserClusterMarker(mapModel)
+        } else {
+            listOfCurrentUsers[userId]?.mapModel = mapModel
         }
+        customUserManagerRenderer.updateMarkerPosition(listOfCurrentUsers[userId]!!)
+
 
     }
+
 
     //calculating directions between user current location and the route he determines
     private fun calculateDirections(marker: Marker) {
@@ -357,8 +376,8 @@ class ApplicationMap private constructor(
                     result?.let {
                         coroutineScope.launch {
                             withContext(Dispatchers.Main) {
-                                    markerAnimation.startMarkerAnimation(marker, it)
-                                    //markerAnimation.drawPolyLineOnMap(it)
+                                markerAnimation.startMarkerAnimation(marker, it)
+                                //markerAnimation.drawPolyLineOnMap(it)
 
 
                             }

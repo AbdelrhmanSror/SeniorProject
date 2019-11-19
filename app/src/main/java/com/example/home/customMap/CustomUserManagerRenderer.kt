@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.view.ViewGroup
 import android.widget.ImageView
 import com.example.home.R
+import com.example.home.models.toUri
 import com.example.home.setImageUri
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
@@ -38,12 +39,12 @@ class CustomUserManagerRenderer(
 
 
     override fun onClusterItemRendered(person: UserClusterMarker?, marker: Marker?) {
-        imageView.setImageUri(person?.user?.userImage!!) {
-
+        imageView.setImageUri(person?.mapModel?.userImage?.toUri())
+        {
             icon = iconGenerator.makeIcon()
             marker?.setIcon(BitmapDescriptorFactory.fromBitmap(icon))
-            marker?.title = person.title
-            marker?.snippet = "${person.position}"
+            marker?.title = person?.title
+            marker?.snippet = "${person?.position}"
         }
     }
 

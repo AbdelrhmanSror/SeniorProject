@@ -4,16 +4,14 @@ package com.example.home.ui.search
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
-import com.example.home.BuildConfig
 import com.example.home.PLACE_DETAILS
 import com.example.home.R
 import com.example.home.databinding.FragmentSearchBinding
@@ -28,19 +26,14 @@ import com.google.android.libraries.places.api.Places
 class SearchFragment : Fragment() {
     private lateinit var binding: FragmentSearchBinding
     lateinit var autoCompleteSearchAdapter: AutoCompleteSearchAdapter
-
-
-    private val searchViewModel: SearchViewModel by lazy {
-        ViewModelProviders.of(this).get(SearchViewModel::class.java)
-    }
-
+    private val searchViewModel by viewModels<SearchViewModel>()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
         binding = FragmentSearchBinding.inflate(inflater, container, false)
-        activity?.actionBar?.hide()
+        requireActivity().actionBar?.hide()
         initViewModel()
         initRecyclerView()
         initAutoCompleteSearch()
@@ -51,9 +44,9 @@ class SearchFragment : Fragment() {
     private fun initViewModel() {
         binding.searchViewModel = searchViewModel
         binding.lifecycleOwner = this
-        searchViewModel.navigateToMap.observe(this, Observer {
+        searchViewModel.navigateToMap.observe(viewLifecycleOwner, Observer {
             //hiding the keyboard after pressing on location to search
-            activity?.hideKeyBoard()
+            requireActivity().hideKeyBoard()
             view?.findNavController()?.navigate(
                 R.id.action_searchFragment_to_navMapFragment,
                 bundleOf(PLACE_DETAILS to it)
@@ -62,10 +55,9 @@ class SearchFragment : Fragment() {
     }
 
     private fun initAutoCompleteSearch() {
-        Log.v("predicition", "initialing")
-        Places.initialize(activity!!.applicationContext,getString(R.string.PlaceApiKey))
+        Places.initialize(requireActivity().applicationContext,getString(R.string.PlaceApiKey))
         val autoCompleteSearch =
-            AutoCompleteSearch.init(activity!!.applicationContext)
+            AutoCompleteSearch.init(requireActivity().applicationContext)
 
         binding.inputEditText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(p0: Editable?) {

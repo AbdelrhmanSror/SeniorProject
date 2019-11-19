@@ -18,6 +18,7 @@ import com.google.android.gms.maps.model.Polyline
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.maps.model.DirectionsResult
 
+
 /**
  * this class is responsible for making marker animation between two location
  */
@@ -68,7 +69,7 @@ class MarkerAnimation private constructor(
                     }
                     val interpolationValue = calculateLatLngInBetween(
                         listOfLatLng[startIndex]
-                        , listOfLatLng[endIndex], start, 1000
+                        , listOfLatLng[endIndex], start, 500
                     ) {
                         start = SystemClock.uptimeMillis()
                         startIndex++
@@ -99,14 +100,14 @@ class MarkerAnimation private constructor(
         startPosition: LatLng,
         endPosition: LatLng,
         startTime: Long,
-        @Suppress("SameParameterValue") interpolationTime: Int,
+        @Suppress("SameParameterValue") animationSpeed: Long,
         onTimeInterpolationFinished: () -> Unit
     ): LatLng {
         /**
          * elapsed time to calculate the time since we start animation and based on it it will calculate the interpolation value
          */
         val elapsedTime = SystemClock.uptimeMillis() - startTime
-        val t = elapsedTime.toFloat() / interpolationTime
+        val t = elapsedTime.toDouble() / animationSpeed
         /**
          *using parametric equation of the line we can find an infinite points on the line in a function of t which will be our variable
          */
@@ -142,7 +143,7 @@ class MarkerAnimation private constructor(
         //crating polyline on given lat lng
         return map
             .addPolyline(
-                PolylineOptions().add(latLng)
+                PolylineOptions().add(latLng).width(5f)
                     .clickable(true)
                     .color(ContextCompat.getColor(application, R.color.colorPrimary))
             )

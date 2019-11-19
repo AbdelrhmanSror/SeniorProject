@@ -5,36 +5,32 @@ import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.content.Context.INPUT_METHOD_SERVICE
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
+import android.icu.text.CaseMap
+import android.location.GnssNavigationMessage
 import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
-import android.view.WindowManager
+import android.provider.Settings
+import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.EditText
-import android.widget.ImageButton
 import android.widget.ImageView
-import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.core.view.GravityCompat
-import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.Fragment
-import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.Target
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.shape.CornerFamily
 import com.google.android.material.shape.MaterialShapeDrawable
+import com.google.android.material.snackbar.Snackbar
 
 
 /**
@@ -55,7 +51,7 @@ fun Context.startForeground(foregroundIntent: Intent) {
  * extension function to load image using glide into image view with
  */
 fun ImageView.setImageUri(uri: Uri?, onImageLoaded: () -> Unit) {
-    Glide.with(this.context).load(uri)
+    Glide.with(this.context).load(uri?:R.drawable.person)
         .apply(RequestOptions.circleCropTransform().apply { RequestOptions.centerInsideTransform() })
         .into(object : CustomTarget<Drawable>() {
             override fun onLoadCleared(placeholder: Drawable?) {
@@ -98,41 +94,9 @@ fun NavigationView.roundedCorner(radius: Float) {
         .build()
 }
 
-/**
- * extension function to initialize drawer layout and setup it with toolbar and back button
- */
-fun DrawerLayout.initialize(fragment: Fragment, toolbar: androidx.appcompat.widget.Toolbar) {
-    val toggle = object :
-        ActionBarDrawerToggle(
-            fragment.activity,
-            this,
-            toolbar,
-            R.string.open_drawer,
-            R.string.close_drawer
-        ) {
-        private var callback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (this@initialize.isDrawerOpen(GravityCompat.START)) {
-                    this@initialize.closeDrawer(GravityCompat.START)
-                } else {
-                    fragment.requireActivity().finish()
-                }
-            }
-
-        }
-
-        init {
-            // This callback will only be called when MyFragment is at least Started.
-            fragment.requireActivity().onBackPressedDispatcher.addCallback(fragment, callback)
-        }
-    }
-
-    this.addDrawerListener(toggle)
-    toggle.syncState()
-}
 
 /**
- * extension function for hiding the keyboard after finishing from typing hiding the keyboard
+ * extension function for hiding the keyboard after finishing from typing
  */
 fun Activity.hideKeyBoard() {
     val inputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
@@ -141,3 +105,31 @@ fun Activity.hideKeyBoard() {
     )
 }
 
+
+fun View.showSnackbar(snackbarText: String, timeLength: Int) {
+    Snackbar.make(this, snackbarText, timeLength).run {
+        setAction(context.getString(R.string.go_to_settings)) {
+            val intent = Intent(
+                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                Uri.parse("package:" + BuildConfig.APPLICATION_ID)
+            )
+            context.startActivity(intent)
+        }
+        show()
+    }
+}
+
+/**
+ * Triggers a snackbar message when the value contained by snackbarTaskMessageLiveEvent is modified.
+ *show snack bar to tell user to direct user to settings to enable permission
+ */
+fun View.setupSnackbar(
+    lifecycleOwner: LifecycleOwner,
+    snackbarEvent: LiveData<Event<Int>>,
+    timeLength: Int
+) {
+
+    snackbarEvent.observe(lifecycleOwner, EventObserver { event ->
+        showSnackbar(context.getString(event), timeLength)
+    })
+}

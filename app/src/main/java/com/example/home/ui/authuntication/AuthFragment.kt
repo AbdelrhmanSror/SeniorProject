@@ -3,7 +3,7 @@ package com.example.home.ui.authuntication
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.home.R
@@ -14,7 +14,8 @@ class AuthFragment : Fragment() {
 
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
     private lateinit var mAuthStateListener: FirebaseAuth.AuthStateListener
-    companion object{
+
+    companion object {
         const val SIGN_IN_CODE = 5
 
     }
@@ -25,48 +26,35 @@ class AuthFragment : Fragment() {
     }
 
     override fun onResume() {
-        Log.v("placesApi", "resume ")
-
         firebaseAuth.addAuthStateListener(mAuthStateListener)
 
         super.onResume()
     }
 
     override fun onPause() {
-        Log.v("placesApi", "pause ")
         firebaseAuth.removeAuthStateListener(mAuthStateListener)
 
         super.onPause()
     }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == SIGN_IN_CODE) {
+            //val response = IdpResponse.fromResultIntent(data)
+
             if (resultCode == Activity.RESULT_OK) {
-                //prepareMap()
                 // Successfully signed in
-                val user = FirebaseAuth.getInstance().currentUser
-                Log.v("placesApi", "donelogin ")
-
+                Toast.makeText(context, "Successfully signed in", Toast.LENGTH_SHORT).show()
                 findNavController().navigate(R.id.action_authFragment_to_navMapFragment)
-
-               /* Snackbar.make(
-                    binding.coordinatorLayout,
-                    "successfully signed in, ${user?.displayName}",
-                    Snackbar.LENGTH_LONG
-                ).show()*/
             } else {
                 // Sign in failed. If response is null the user canceled the
                 // sign-in flow using the back button. Otherwise check
                 // response.getError().getErrorCode() and handle the error.
-               /* Snackbar.make(
-                    binding.coordinatorLayout,
-                    "failed to signed in",
-                    Snackbar.LENGTH_LONG
-                ).show()*/
-                activity?.finish()
 
+                Toast.makeText(context, "Failed to sign in please try again", Toast.LENGTH_LONG)
+                    .show()
+                requireActivity().finish()
 
-                //activity!!.finish()
             }
         }
 
@@ -88,6 +76,7 @@ class AuthFragment : Fragment() {
                             .createSignInIntentBuilder()
                             //automatically allow phone to save the user credential and try to log them in true to enable and false to disable
                             .setIsSmartLockEnabled(false)
+                            .setLogo(R.drawable.person) // Set logo drawable
                             .setTheme(R.style.Theme_MaterialComponents_Light)
                             .setAvailableProviders(providers)
                             .build(),
@@ -98,8 +87,6 @@ class AuthFragment : Fragment() {
 
                 else -> {
                     // user is signed in}
-                    Log.v("placesApi", "alreadylogin ")
-
                     findNavController().navigate(R.id.action_authFragment_to_navMapFragment)
                 }
             }
