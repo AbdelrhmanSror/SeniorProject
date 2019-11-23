@@ -163,7 +163,6 @@ class NavMapFragment : Fragment(), OnMapReadyCallback {
      * also we check if the gps is enabled if not we show alter dialog to user to enable gps
      */
     override fun onMapReady(googleMap: GoogleMap) {
-        Log.v("placesTriigeed","mapready")
         mapViewModel.setMap(this, googleMap)
 
         mapViewModel.gpsEnabled.observe(viewLifecycleOwner, EventObserver {
@@ -178,7 +177,6 @@ class NavMapFragment : Fragment(), OnMapReadyCallback {
                 requestPermission()
         })
         mapViewModel.searchPlace.observe(viewLifecycleOwner, Observer {
-            Log.v("placesTriigeed","done")
             mapViewModel.goToSpecificPlace(it)
         })
 

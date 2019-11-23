@@ -116,16 +116,14 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     /**
-     *every time location is changing we call this method and pass it
+     *every time location is changing we call this method
+     *
      */
     private fun onLocationChangeListener() {
         applicationMap.setOntLocationChangeListener { mapModel ->
             this.mapModel = mapModel
-            //track the current location of a user then push into firestore database so it will be shared across all devices
-            fireStore.document("userLocation/user").set(mapModel.apply {
-                userImage = currentUser.userImage.toString()
-                userName = currentUser.userName.toString()
-            })
+           //todo here u can push the current user location into ur database cause every time user location change this method will be called
+
         }
     }
 
@@ -153,23 +151,19 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         _searchPlace.value = mapModel
     }
 
+    /**
+     * [collectionReference] is the reference of firestore to the collection u want to retrieve
+     * call this every time u want to retrieve different collection
+     */
     private fun updateUsersLocationOnMap(collectionReference: CollectionReference) {
-        collectionReference.addSnapshotListener { value, e ->
-            if (e != null) {
-                Log.w("mapModelTrigger", "Listen failed.", e)
-                return@addSnapshotListener
-            }
-            //val listOfUser = ArrayList<RemoteSourceModel>()
-            for (doc in value!!) {
-                val userLocation = doc.toObject(MapModel::class.java)
-                Log.v("mapModelTrigger", "${userLocation.userName}")
-                applicationMap.updateCluster(doc.id, userLocation)
-
-            }
-        }
+        //todo here u can retrieve other users location and draw cluster on map
+        // by calling applicationMap.updateCluster(your document id, the user location ) document id is unique by each document
+        // that why we pass it as parameter to uniquely identify the user
+        // call this method at the time of initializing the view model
 
     }
 
 
 }
+
 
