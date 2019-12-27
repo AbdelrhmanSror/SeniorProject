@@ -4,8 +4,10 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.example.home.AudioPermission
 import com.example.home.R
 import com.firebase.ui.auth.AuthUI
 import com.google.firebase.auth.FirebaseAuth
@@ -21,8 +23,10 @@ class AuthFragment : Fragment() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setUpFirebaseUi()
         super.onCreate(savedInstanceState)
+        setUpFirebaseUi()
+
+
     }
 
     override fun onResume() {
@@ -37,6 +41,7 @@ class AuthFragment : Fragment() {
         super.onPause()
     }
 
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == SIGN_IN_CODE) {
@@ -45,7 +50,8 @@ class AuthFragment : Fragment() {
             if (resultCode == Activity.RESULT_OK) {
                 // Successfully signed in
                 Toast.makeText(context, "Successfully signed in", Toast.LENGTH_SHORT).show()
-                findNavController().navigate(R.id.action_authFragment_to_navMapFragment)
+                    findNavController().navigate(R.id.action_authFragment_to_navMapFragment)
+
             } else {
                 // Sign in failed. If response is null the user canceled the
                 // sign-in flow using the back button. Otherwise check
@@ -87,7 +93,10 @@ class AuthFragment : Fragment() {
 
                 else -> {
                     // user is signed in}
-                    findNavController().navigate(R.id.action_authFragment_to_navMapFragment)
+                   // audioPermission=AudioPermission(requireActivity() as AppCompatActivity){
+                        findNavController().navigate(R.id.action_authFragment_to_navMapFragment)
+
+                   // }
                 }
             }
         }

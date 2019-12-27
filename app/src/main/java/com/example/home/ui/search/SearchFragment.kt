@@ -1,12 +1,22 @@
 package com.example.home.ui.search
 
 
+import android.Manifest
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.IBinder
 import android.text.Editable
+import android.text.TextUtils
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -16,6 +26,7 @@ import com.example.home.PLACE_DETAILS
 import com.example.home.R
 import com.example.home.databinding.FragmentSearchBinding
 import com.example.home.hideKeyBoard
+import com.example.home.service.SpeechService
 import com.example.home.viewmodel.SearchViewModel
 import com.google.android.libraries.places.api.Places
 
@@ -55,7 +66,7 @@ class SearchFragment : Fragment() {
     }
 
     private fun initAutoCompleteSearch() {
-        Places.initialize(requireActivity().applicationContext,getString(R.string.PlaceApiKey))
+        Places.initialize(requireActivity().applicationContext, getString(R.string.PlaceApiKey))
         val autoCompleteSearch =
             AutoCompleteSearch.init(requireActivity().applicationContext)
 
@@ -68,7 +79,7 @@ class SearchFragment : Fragment() {
             }
 
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                searchViewModel.startSearchVoiceAnimation(p0.isNullOrEmpty())
+                searchViewModel.startSearchVoiceAnimation(!p0.isNullOrEmpty())
                 //execute our method for searching
                 autoCompleteSearch.fetchAutoCompleteSearchList(p0.toString()) {
                     if (it.isNullOrEmpty()) {
@@ -94,6 +105,7 @@ class SearchFragment : Fragment() {
 
 
     }
+
 
 
 }

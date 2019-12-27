@@ -224,8 +224,13 @@ class ApplicationMap private constructor(
                     BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)
                 )
         )
-        map.moveCamera(CameraUpdateFactory.newLatLng(latLng))
-        map.animateCamera(CameraUpdateFactory.zoomTo(13f))
+        map.moveCamera(
+            CameraUpdateFactory.newLatLngZoom(
+                LatLng(mapModel.latitude, mapModel.longitude)
+                ,
+                DEFAULT_ZOOM
+            )
+        )
     }
 
     /**
@@ -258,10 +263,10 @@ class ApplicationMap private constructor(
             )
 
             if (!success) {
-                Log.e(NavMapFragment.TAG, "Style parsing failed.")
+                //Log.e(NavMapFragment.TAG, "Style parsing failed.")
             }
         } catch (e: Resources.NotFoundException) {
-            Log.e(NavMapFragment.TAG, "Can't find style. Error: ", e)
+           // Log.e(NavMapFragment.TAG, "Can't find style. Error: ", e)
         }
     }
 

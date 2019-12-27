@@ -64,15 +64,7 @@ fun ImageView.setImageUri(uri: Uri?, onImageLoaded: () -> Unit) {
         })
 }
 
-/**
- * extension function to check if user granted the permissions
- */
-fun Application.isLocationPermissionGranted(): Boolean {
-    return ContextCompat.checkSelfPermission(
-        this,
-        Manifest.permission.ACCESS_FINE_LOCATION
-    ) == PackageManager.PERMISSION_GRANTED
-}
+
 
 fun Application.isGpsEnabled(): Boolean {
     val manager = (getSystemService(Context.LOCATION_SERVICE)) as LocationManager

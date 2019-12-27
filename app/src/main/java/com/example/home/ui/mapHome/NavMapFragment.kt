@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.view.*
 import androidx.activity.addCallback
 import androidx.core.view.GravityCompat
@@ -13,6 +12,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
@@ -20,25 +20,20 @@ import com.example.home.*
 import com.example.home.databinding.FragmentNavMapBinding
 import com.example.home.models.MapModel
 import com.example.home.viewmodel.MapViewModel
+import com.example.home.viewmodel.NavMapViewModelFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.snackbar.Snackbar
 
 /**
  * A simple [Fragment] subclass.
  */
 class NavMapFragment : Fragment(), OnMapReadyCallback {
     private lateinit var binding: FragmentNavMapBinding
-    private val mapViewModel by viewModels<MapViewModel>()
-
-    companion object {
-        const val REQUEST_LOCATION_PERMISSION = 1
-        val TAG = MainActivity::class.java.simpleName
-
+    private val mapViewModel :MapViewModel by lazy {
+       ViewModelProvider(this, NavMapViewModelFactory(requireActivity().application)).get(MapViewModel::class.java)
     }
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -47,8 +42,8 @@ class NavMapFragment : Fragment(), OnMapReadyCallback {
         prepareMap()
         binding.lifecycleOwner = this
         binding.viewModel = mapViewModel
-        setUpSnackBar()
         setHasOptionsMenu(true)
+        handleDrawerLayout()
         // Set up the views
         return binding.root
     }
@@ -60,23 +55,8 @@ class NavMapFragment : Fragment(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
     }
 
-    private fun requestPermission() = requestPermissions(
-        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-        REQUEST_LOCATION_PERMISSION
-    )
 
 
-    //show snack bar to tell user to direct user to settings to enable permission
-    private fun setUpSnackBar() {
-        view?.setupSnackbar(this, mapViewModel.snackbarText, Snackbar.LENGTH_LONG)
-
-    }
-
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        handleDrawerLayout()
-    }
 
     private fun handleDrawerLayout() {
         (requireActivity() as MainActivity).apply {
@@ -91,34 +71,7 @@ class NavMapFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        // Check if location permissions are granted and if so enable the
-        // location data layer.
-        //if the permission is granted but gps is not enabled then ask user to enable it
-        //else if the use did not enable it then go to default location
-        if (requestCode == REQUEST_LOCATION_PERMISSION) {
-            if (grantResults.isNotEmpty() && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                mapViewModel.setPermissionGranted()
-                mapViewModel.verifyAllEnabled()
-            } else {
-                // permission was not granted
-                //permission is denied (this is the first time, when "never ask again" is not checked) so ask again explaining the usage of permission
-                // shouldShowRequestPermissionRationale will return true
-                if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
-                    showPermissionAlertDialog()
 
-                } //permission is denied (and never ask again is  checked)
-                //shouldShowRequestPermissionRationale will return false
-                else {
-                    mapViewModel.showSnackbarMessage(R.string.enable_permission_settings)
-                }
-            }
-        }
-    }
 
     private fun showGpsAlertDialog() {
         MaterialAlertDialogBuilder(context)
@@ -132,17 +85,6 @@ class NavMapFragment : Fragment(), OnMapReadyCallback {
             .show()
     }
 
-    private fun showPermissionAlertDialog() {
-        MaterialAlertDialogBuilder(context)
-            .setTitle(getString(R.string.permission_denied))
-            .setMessage(getString(R.string.permission_clarify))
-            .setPositiveButton(getString(R.string.accept_permission)) { _, _ ->
-                requestPermission()
-            }.setNegativeButton(getString(R.string.refuse_permission)) { dialog, _ ->
-                dialog.cancel()
-            }
-            .show()
-    }
 
     override fun onResume() {
         //start searching for location if there  was a location coordinates coming  from search fragment
@@ -171,10 +113,6 @@ class NavMapFragment : Fragment(), OnMapReadyCallback {
             } else {
                 showGpsAlertDialog()
             }
-        })
-        mapViewModel.requestPermission.observe(viewLifecycleOwner, EventObserver {
-            if (it)
-                requestPermission()
         })
         mapViewModel.searchPlace.observe(viewLifecycleOwner, Observer {
             mapViewModel.goToSpecificPlace(it)

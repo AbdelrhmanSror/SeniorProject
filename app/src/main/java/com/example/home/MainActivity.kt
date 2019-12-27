@@ -25,19 +25,24 @@ class MainActivity : AppCompatActivity() ,NavigationViewHandler{
     private lateinit var navController: NavController
     private lateinit var binding: ActivityMainBinding
     private lateinit var drawerHeaderBinding: DrawerHeaderBinding
+    private lateinit var audioPermission: AudioPermission
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        navController = findNavController(R.id.nav_host_fragment)
+        audioPermission= AudioPermission(this){
+            navigateToStartDestination() }
+        appBarConfiguration = AppBarConfiguration.Builder(R.id.navMapFragment).setDrawerLayout(binding.drawerLayout).build()
         drawerHeaderBinding=DrawerHeaderBinding.bind(binding.navView.getHeaderView(0))
         binding.root.tag = binding
         setSupportActionBar(findViewById(R.id.toolbar))
-        navController = findNavController(R.id.nav_host_fragment)
-        appBarConfiguration = AppBarConfiguration.Builder(R.id.navMapFragment).setDrawerLayout(binding.drawerLayout).build()
         setupActionBarWithNavController(navController, appBarConfiguration)
         binding.navView.setupWithNavController(navController)
         setupNavView()
         setUpNavSwipe()
+
 
     }
 
@@ -62,6 +67,22 @@ class MainActivity : AppCompatActivity() ,NavigationViewHandler{
             }
         }
     }
+    private fun navigateToStartDestination() {
+        val inflater = navController.navInflater
+        val graph = inflater.inflate(R.navigation.map_navigation)
+        //show the bottom nav view after permission is granted
+        graph.startDestination = R.id.authFragment
+        navController.setGraph(graph, null)
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        audioPermission.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
 
     override fun onSupportNavigateUp(): Boolean {
         return findNavController(R.id.nav_host_fragment).navigateUp(appBarConfiguration)

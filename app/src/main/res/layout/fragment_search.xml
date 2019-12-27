@@ -34,6 +34,7 @@
                 <EditText
                     android:id="@+id/input_edit_text"
                     android:layout_width="0dp"
+                    android:text="@{searchViewModel.searchText}"
                     android:layout_height="wrap_content"
                     android:backgroundTint="@color/white"
                     android:hint="@string/search_hint"
@@ -77,6 +78,7 @@
                     android:id="@+id/imageButton"
                     app:searchVoiceAnim="@{searchViewModel.searchVoiceAnimation}"
                     android:layout_width="wrap_content"
+                    android:onClick="@{()->searchViewModel.startVoiceRecorder()}"
                     android:tag="search"
                     android:layout_height="wrap_content"
                     android:backgroundTint="@color/white"
