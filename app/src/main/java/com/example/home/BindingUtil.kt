@@ -1,17 +1,12 @@
 package com.example.home
 
-import android.net.Uri
-import androidx.databinding.BindingAdapter
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.gms.maps.model.MarkerOptions
-import android.os.Bundle
 import android.widget.ImageButton
 import android.widget.ImageView
+import androidx.databinding.BindingAdapter
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.MapView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 
 /**
@@ -19,7 +14,7 @@ import com.google.android.gms.maps.MapView
  * if there is no album for this audio replace it with default one
  */
 @BindingAdapter("circularImageUri")
-fun setCircularImageUri(imageView: ImageView, imageUri: Uri?) {
+fun setCircularImageUri(imageView: ImageView, imageUri: String?) {
     imageUri?.let {
         Glide.with(imageView.context)
             .load(imageUri)

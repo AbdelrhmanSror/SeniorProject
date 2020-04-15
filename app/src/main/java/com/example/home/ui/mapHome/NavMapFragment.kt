@@ -13,10 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
-import com.example.home.EventObserver
-import com.example.home.MainActivity
-import com.example.home.PLACE_DETAILS
-import com.example.home.R
+import com.example.home.*
 import com.example.home.databinding.FragmentNavMapBinding
 import com.example.home.models.MapModel
 import com.example.home.models.currentUser
@@ -32,8 +29,10 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
  */
 class NavMapFragment : Fragment(), OnMapReadyCallback {
     private lateinit var binding: FragmentNavMapBinding
-    private val mapViewModel :MapViewModel by lazy {
-       ViewModelProvider(this, NavMapViewModelFactory(requireActivity().application)).get(MapViewModel::class.java)
+    private val mapViewModel: MapViewModel by lazy {
+        ViewModelProvider(this, NavMapViewModelFactory(requireActivity().application)).get(
+            MapViewModel::class.java
+        )
     }
 
     override fun onCreateView(
@@ -45,6 +44,7 @@ class NavMapFragment : Fragment(), OnMapReadyCallback {
         binding.viewModel = mapViewModel
         setHasOptionsMenu(true)
         handleDrawerLayout()
+        monitorRequestObserver()
         // Set up the views
         return binding.root
     }
@@ -57,6 +57,17 @@ class NavMapFragment : Fragment(), OnMapReadyCallback {
     }
 
 
+    private fun monitorRequestObserver() {
+        mapViewModel.monitorRequestObserver {
+            MaterialAlertDialogBuilder(context).setIcon(it.from?.userImage?.getImageDrawable(requireContext()))
+                .setTitle("Monitor Request")
+                .setMessage("${it.from?.userName} has requested monitoring you")
+                .setPositiveButton("Accept") { _, _ ->
+                }.setNegativeButton("Decline") { dialog, _ ->
+                    dialog.cancel()
+                }.show()
+        }
+    }
 
 
     private fun handleDrawerLayout() {
@@ -73,7 +84,6 @@ class NavMapFragment : Fragment(), OnMapReadyCallback {
     }
 
 
-
     private fun showGpsAlertDialog() {
         MaterialAlertDialogBuilder(context)
             .setTitle(getString(R.string.gps_enable_title))
@@ -82,8 +92,7 @@ class NavMapFragment : Fragment(), OnMapReadyCallback {
                 startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
             }.setNegativeButton(getString(R.string.negative_gps_enable_answer)) { dialog, _ ->
                 dialog.cancel()
-            }
-            .show()
+            }.show()
     }
 
 
@@ -121,7 +130,6 @@ class NavMapFragment : Fragment(), OnMapReadyCallback {
 
 
     }
-
 
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

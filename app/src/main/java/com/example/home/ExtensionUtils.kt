@@ -1,16 +1,11 @@
 package com.example.home
 
-import android.Manifest
 import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.content.Context.INPUT_METHOD_SERVICE
-import android.content.DialogInterface
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
-import android.icu.text.CaseMap
-import android.location.GnssNavigationMessage
 import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
@@ -18,15 +13,13 @@ import android.provider.Settings
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
-import androidx.annotation.StringRes
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.example.home.models.toUri
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.shape.CornerFamily
 import com.google.android.material.shape.MaterialShapeDrawable
@@ -45,6 +38,13 @@ fun Context.startForeground(foregroundIntent: Intent) {
         startService(foregroundIntent)
 
     }
+}
+
+fun String.getImageDrawable(context: Context):Drawable{
+
+        val inputStream = context.contentResolver.openInputStream(this.toUri())
+       return Drawable.createFromStream(inputStream, this)
+
 }
 
 /**

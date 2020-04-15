@@ -7,12 +7,13 @@ import com.example.home.customMap.ApplicationMap
 import com.example.home.database.FireStore
 import com.example.home.isGpsEnabled
 import com.example.home.models.MapModel
+import com.example.home.models.MonitorRequest
 import com.example.home.models.currentUser
 import com.google.android.gms.maps.GoogleMap
 
 class MapViewModel(application: Application) : AndroidViewModel(application) {
     private lateinit var applicationMap: ApplicationMap
-    private val fireStore = FireStore()
+    private val fireStore = FireStore(application)
 
     //represent the current user location of lat and long
     private lateinit var mapModel: MapModel
@@ -52,6 +53,12 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         }
         fireStore.getCurrentMonitorsModel { id, userLocation ->
             applicationMap.updateCluster(id, userLocation)
+        }
+    }
+
+    fun monitorRequestObserver(observer: (request: MonitorRequest) -> Unit) {
+        fireStore.observeMonitoringRequest {
+            observer(it)
         }
     }
 

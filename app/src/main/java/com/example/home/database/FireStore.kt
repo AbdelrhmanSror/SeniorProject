@@ -1,33 +1,54 @@
 package com.example.home.database
 
+import android.content.Context
 import android.util.Log
-import com.example.home.models.MapModel
-import com.example.home.models.Monitors
-import com.example.home.models.currentUser
+import com.example.home.models.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.MetadataChanges
 
-class FireStore {
+class FireStore(private val context: Context) {
     private val fireStore = FirebaseFirestore.getInstance()
 
     //reference to main collection
     private val mainCollectionRef =
         fireStore.collection("userLocation")
 
-    //ref to monitors documents
-    private val monitorCollectionRef =
-        mainCollectionRef.document("${currentUser.userName}")
-            .collection("monitors").document("monitor")
-
     //ref to current user document
     private val userCollectionRef =
         mainCollectionRef.document("${currentUser.userName}")
+
+    //ref to monitors documents
+    private val monitorCollectionRef =
+        userCollectionRef.collection("monitors").document("monitor")
+
+    private val monitorRequestRef =
+        userCollectionRef.collection("Request").document("MonitorRequest")
 
     fun updateUserData(mapModel: MapModel) {
         userCollectionRef.set(mapModel)
     }
 
 
+    fun observeMonitoringRequest(requestObserver:(request:MonitorRequest)->Unit) {
+        monitorRequestRef.set(MonitorRequest(UserModel("Ahmed","ahmed@gmail.com", "https://image.shutterstock.com/image-photo/bright-spring-view-cameo-island-260nw-1048185397.jpg"),
+            UserModel("abdelrhman","abdelrhman@gmail.com"),false
+        ))
+        monitorRequestRef.addSnapshotListener(MetadataChanges.INCLUDE) { value, e ->
+            if (e != null) {
+                Log.w("mapModelTrigger", "Listen failed.", e)
+                return@addSnapshotListener
+            }
+            value?.let {
+                val request = it.toObject(MonitorRequest::class.java)
+                if (request!!.isRequest) {
+                    monitorRequestRef.set(MonitorRequest(isRequest = false))
+                    requestObserver(request)
+                }
+
+
+            }
+        }
+    }
     /**
      * get the location of current user monitors
      */
@@ -39,7 +60,7 @@ class FireStore {
                     return@addSnapshotListener
                 }
                 for (doc in value!!) {
-                    if (it.monitorId != null && it.monitorId.contains(doc.id)) {
+                    if (it.contains(doc.id)) {
                         Log.v("currentMonitors", doc.id)
                         val userLocation = doc.toObject(MapModel::class.java)
                         whatEverToDo(doc.id, userLocation)
@@ -54,7 +75,7 @@ class FireStore {
     /**
      * get list of current user monitors id
      */
-    private fun getCurrentUserMonitors(listOfMonitors: (monitors: Monitors) -> Unit) {
+    private fun getCurrentUserMonitors(listOfMonitors: (monitors: HashSet<monitorId>) -> Unit) {
         monitorCollectionRef.addSnapshotListener(MetadataChanges.INCLUDE) { value, e ->
             if (e != null) {
                 Log.w("mapModelTrigger", "Listen failed.", e)
@@ -63,8 +84,7 @@ class FireStore {
             //val listOfUser = ArrayList<RemoteSourceModel>()
             value?.let {
                 val monitors = it.toObject(Monitors::class.java)
-                Log.v("currentMonitors","$monitors")
-                listOfMonitors(monitors!!)
+                listOfMonitors(monitors!!.monitorId!!.toHashSet())
             }
         }
     }
@@ -81,7 +101,7 @@ class FireStore {
             //val listOfUser = ArrayList<RemoteSourceModel>()
             value?.let {
                 val userLocation = it.toObject(MapModel::class.java)
-                Log.v("currentUser","$userLocation")
+                Log.v("currentUser", "$userLocation")
                 whatEverToDo(value.id, userLocation!!)
             }
 
