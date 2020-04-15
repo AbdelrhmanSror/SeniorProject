@@ -1,21 +1,18 @@
 package com.example.home.viewmodel
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.*
 import com.example.home.Event
 import com.example.home.customMap.ApplicationMap
+import com.example.home.database.FireStore
 import com.example.home.isGpsEnabled
 import com.example.home.models.MapModel
-import com.example.home.models.UserModel
+import com.example.home.models.currentUser
 import com.google.android.gms.maps.GoogleMap
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.FirebaseFirestore
 
 class MapViewModel(application: Application) : AndroidViewModel(application) {
     private lateinit var applicationMap: ApplicationMap
-    private val fireStore = FirebaseFirestore.getInstance()
+    private val fireStore = FireStore()
 
     //represent the current user location of lat and long
     private lateinit var mapModel: MapModel
@@ -31,11 +28,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
     private val _searchPlace = MutableLiveData<MapModel>()
     val searchPlace: LiveData<MapModel>
         get() = _searchPlace
-
-    val currentUser: UserModel by lazy {
-        val user = FirebaseAuth.getInstance().currentUser
-        UserModel(user!!.displayName, user.email, user.photoUrl)
-    }
 
 
     //checking if permission is granted and gps is enabled then every thing is setuped
@@ -55,9 +47,12 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         //initial setup for user location when first time open the app
         setOnLocationChangeListener()
         //location of other users
-        updateUsersLocationOnMap(fireStore.collection("userLocation").document("user").collection("UsersLocation"))
-        //location of me
-        updateUsersLocationOnMap(fireStore.collection("userLocation"))
+        fireStore.getCurrentUserModel { id, userLocation ->
+            applicationMap.updateCluster(id, userLocation)
+        }
+        fireStore.getCurrentMonitorsModel { id, userLocation ->
+            applicationMap.updateCluster(id, userLocation)
+        }
     }
 
 
@@ -98,11 +93,12 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         if (::applicationMap.isInitialized) {
             applicationMap.setOntLocationChangeListener { mapModel ->
                 this.mapModel = mapModel
-                //track the current location of a user then push into firestore database so it will be shared across all devices
-                fireStore.document("userLocation/user").set(mapModel.apply {
+                mapModel.apply {
                     userImage = currentUser.userImage.toString()
                     userName = currentUser.userName.toString()
-                })
+                }
+                //track the current location of a user then push into firestore database so it will be shared across all devices
+                fireStore.updateUserData(mapModel)
             }
         }
     }
@@ -129,23 +125,6 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
     fun startSearching(mapModel: MapModel) {
         _searchPlace.value = mapModel
-    }
-
-    private fun updateUsersLocationOnMap(collectionReference: CollectionReference) {
-        collectionReference.addSnapshotListener { value, e ->
-            if (e != null) {
-                Log.w("mapModelTrigger", "Listen failed.", e)
-                return@addSnapshotListener
-            }
-            //val listOfUser = ArrayList<RemoteSourceModel>()
-            for (doc in value!!) {
-                val userLocation = doc.toObject(MapModel::class.java)
-                Log.v("mapModelTrigger", "${userLocation.userName}")
-                applicationMap.updateCluster(doc.id, userLocation)
-
-            }
-        }
-
     }
 
 

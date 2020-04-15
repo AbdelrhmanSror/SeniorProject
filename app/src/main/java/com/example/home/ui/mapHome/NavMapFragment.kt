@@ -1,8 +1,6 @@
 package com.example.home.ui.mapHome
 
-import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.Settings
 import android.view.*
@@ -10,15 +8,18 @@ import androidx.activity.addCallback
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
-import com.example.home.*
+import com.example.home.EventObserver
+import com.example.home.MainActivity
+import com.example.home.PLACE_DETAILS
+import com.example.home.R
 import com.example.home.databinding.FragmentNavMapBinding
 import com.example.home.models.MapModel
+import com.example.home.models.currentUser
 import com.example.home.viewmodel.MapViewModel
 import com.example.home.viewmodel.NavMapViewModelFactory
 import com.google.android.gms.maps.GoogleMap
@@ -60,7 +61,7 @@ class NavMapFragment : Fragment(), OnMapReadyCallback {
 
     private fun handleDrawerLayout() {
         (requireActivity() as MainActivity).apply {
-            setUserDetailsNavHeader(mapViewModel.currentUser)
+            setUserDetailsNavHeader(currentUser)
             onBackPressedDispatcher.addCallback(this@NavMapFragment) {
                 if (findViewById<DrawerLayout>(R.id.drawerLayout).isDrawerOpen(GravityCompat.START)) {
                     findViewById<DrawerLayout>(R.id.drawerLayout).closeDrawer(GravityCompat.START)
