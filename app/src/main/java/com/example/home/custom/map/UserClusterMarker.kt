@@ -13,7 +13,7 @@ class UserClusterMarker(
     }
 
     override fun getTitle(): String? {
-        return mapModel.userName
+        return mapModel.userModel?.userName
     }
 
     override fun getPosition(): LatLng {

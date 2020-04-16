@@ -59,8 +59,6 @@ class AutoCompleteSearch private constructor( context: Context) {
                         prediction.getFullText(null).toString()
                     )
                 )
-                Log.v("predicition", prediction.getFullText(null).toString())
-                Log.v("predicition", prediction.getPrimaryText(null).toString())
 
             }
             placesList(stringList)

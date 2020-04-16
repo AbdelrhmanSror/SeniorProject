@@ -87,6 +87,18 @@ class FireStore() {
     }
 
     /**
+     * return the data of specific user
+     */
+    fun fetchUserDataBasedOnEmail(email: String, userData: (MapModel?) -> Unit) {
+        mainCollectionRef.document("Mohamed").get().addOnSuccessListener { document ->
+            if (!document.exists())
+                userData(null)
+            else
+                userData(document.toObject(MapModel::class.java))
+        }
+    }
+
+    /**
      * get current user location
      */
     fun getCurrentUserModel(whatEverToDo: (id: String, userLocation: MapModel) -> Unit) {

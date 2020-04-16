@@ -39,7 +39,7 @@ class CustomUserManagerRenderer(
 
 
     override fun onClusterItemRendered(person: UserClusterMarker?, marker: Marker?) {
-        imageView.setImageUri(person?.mapModel?.userImage?.toUri())
+        imageView.setImageUri(person?.mapModel?.userModel?.userImageUri?.toUri())
         {
             icon = iconGenerator.makeIcon()
             marker?.setIcon(BitmapDescriptorFactory.fromBitmap(icon))

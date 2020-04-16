@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    >
+
+    <ImageView
+        android:id="@+id/receiverImage"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_margin="4dp"
+        tools:src="@drawable/person"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:text="@string/name"
+        android:textColor="?android:textColorSecondary"
+        android:textSize="@dimen/customTitle"
+        />
+    <TextView
+        android:id="@+id/receiverName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textColor="?android:textColorPrimary"
+        android:textSize="@dimen/customEntry"
+        tools:text="abdelrhman"
+        />
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:text="@string/email"
+        android:textColor="?android:textColorSecondary"
+        android:textSize="@dimen/customTitle"
+        />
+
+    <TextView
+        android:id="@+id/receiverEmail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textColor="?android:textColorPrimary"
+        android:textSize="@dimen/customEntry"
+        tools:text="sror12347@gmail.com"
+        />
+
+</LinearLayout>

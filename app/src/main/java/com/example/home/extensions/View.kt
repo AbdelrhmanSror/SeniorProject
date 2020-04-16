@@ -67,9 +67,9 @@ fun View.setupSnackbar(
 }
 
 /**
-* extension function to load image using glide into image view with
-*/
-fun ImageView.setImageUri(uri: Uri?, onImageLoaded: () -> Unit) {
+ * extension function to load image using glide into image view with
+ */
+fun ImageView.setImageUri(uri: Uri?, onImageLoaded: (() -> Unit)? = null) {
     Glide.with(this.context).load(uri ?: R.drawable.person)
         .apply(
             RequestOptions.circleCropTransform().apply { RequestOptions.centerInsideTransform() })
@@ -79,7 +79,7 @@ fun ImageView.setImageUri(uri: Uri?, onImageLoaded: () -> Unit) {
 
             override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
                 this@setImageUri.setImageDrawable(resource)
-                onImageLoaded()
+                onImageLoaded?.invoke()
             }
         })
 }
@@ -97,11 +97,12 @@ fun NavigationView.roundedCorner(radius: Float) {
         .build()
 }
 
-fun DrawerLayout.show(){
+fun DrawerLayout.show() {
     this.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
 
 }
-fun DrawerLayout.hide(){
+
+fun DrawerLayout.hide() {
     this.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
 
 }

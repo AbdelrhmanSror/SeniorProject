@@ -34,7 +34,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 class NavMapFragment : Fragment(), OnMapReadyCallback {
     private lateinit var binding: FragmentNavMapBinding
     private val mapViewModel: MapViewModel by lazy {
-        ViewModelProvider(this, NavMapViewModelFactory(requireActivity().application)).get(
+        ViewModelProvider(requireActivity(), NavMapViewModelFactory(requireActivity().application)).get(
             MapViewModel::class.java
         )
     }

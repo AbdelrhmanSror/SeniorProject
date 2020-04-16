@@ -13,7 +13,7 @@
     <string name="negative_gps_enable_answer">No</string>
     <string name="permission_denied">Permission denied</string>
     <string name="permission_clarify">this permission is important to access location</string>
-    <string name="accept_permission"> Ok enable</string>
+    <string name="accept_permission"> OK enable</string>
     <string name="refuse_permission">Not now</string>
     <string name="enable_permission_settings">Go to settings and enable location  permissions</string>
     <string name="go_to_settings">Go to settings</string>
@@ -22,9 +22,14 @@
     <string name="open_drawer">Open Drawer</string>
     <string name="PlaceApiKey">AIzaSyA0eqlJfsa4Hfq6Z5cIMk0bXPlVJu21J5g</string>
     <string name="Track">Track</string>
-    <string name="monitorRequest">Send a Monitor Request to a Friends/Family</string>
+    <string name="monitorRequest">Send a Monitor Request to </string>
     <string name="sendRequest">Send</string>
     <string name="dismissRequest">Dismiss</string>
+    <string name="requestHead">Type Person Name/Email That you want to track</string>
+    <string name="requestHint">Type Name/Email</string>
+    <string name="name">User Name</string>
+    <string name="email">Email</string>
+    <string name="connect">Connect</string>
 
 
 </resources>

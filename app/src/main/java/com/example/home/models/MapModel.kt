@@ -8,8 +8,7 @@ import kotlinx.android.parcel.Parcelize
 data class MapModel(
     val latitude: Double = 0.0,
     val longitude: Double = 0.0,
-    var userName: String? = null,
-    var userImage: String? = null
+    var userModel: UserModel? = null
 ) : Parcelable
 
 fun String.toUri(): Uri {

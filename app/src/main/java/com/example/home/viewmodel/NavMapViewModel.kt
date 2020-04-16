@@ -8,6 +8,7 @@ import com.example.home.database.FireStore
 import com.example.home.extensions.isGpsEnabled
 import com.example.home.models.MapModel
 import com.example.home.models.MonitorRequest
+import com.example.home.models.UserModel
 import com.example.home.models.currentUser
 import com.google.android.gms.maps.GoogleMap
 
@@ -91,6 +92,11 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
     }
 
+    fun searchForUsingEmail(email: String, observer: (MapModel?) -> Unit) {
+        fireStore.fetchUserDataBasedOnEmail(email) {
+            observer(it)
+        }
+    }
 
     /**
      *every time location is changing we call this method
@@ -101,8 +107,11 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             applicationMap.setOntLocationChangeListener { mapModel ->
                 this.mapModel = mapModel
                 mapModel.apply {
-                    userImage = currentUser.userImageUri.toString()
-                    userName = currentUser.userName.toString()
+                    userModel = UserModel(
+                        currentUser.userName.toString(),
+                        currentUser.email,
+                        currentUser.userImageUri.toString()
+                    )
                 }
                 //track the current location of a user then push into firestore database so it will be shared across all devices
                 fireStore.updateUserData(mapModel)
