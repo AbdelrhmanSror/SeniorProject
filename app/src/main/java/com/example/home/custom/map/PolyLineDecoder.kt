@@ -1,4 +1,4 @@
-package com.example.home.customMap
+package com.example.home.custom.map
 
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.model.DirectionsResult
@@ -9,7 +9,8 @@ object PolyLineDecoder {
         val newDecodedPath = ArrayList<LatLng>()
         //for (route in result.routes) {
         //get just the first route
-        val decodedPath = decode(result.routes[0].overviewPolyline.encodedPath)
+        val decodedPath =
+            decode(result.routes[0].overviewPolyline.encodedPath)
 
         // This loops through all the LatLng coordinates of ONE polyline.
         for (latLng in decodedPath) {

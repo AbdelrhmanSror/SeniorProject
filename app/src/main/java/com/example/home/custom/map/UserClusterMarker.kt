@@ -1,7 +1,6 @@
-package com.example.home.customMap
+package com.example.home.custom.map
 
 import com.example.home.models.MapModel
-import com.example.home.models.UserModel
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.clustering.ClusterItem
 

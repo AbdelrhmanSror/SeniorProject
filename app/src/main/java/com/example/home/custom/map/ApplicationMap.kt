@@ -1,4 +1,4 @@
-package com.example.home.customMap
+package com.example.home.custom.map
 
 import android.app.Application
 import android.content.Context
@@ -15,8 +15,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
 import com.example.home.R
 import com.example.home.models.MapModel
-import com.example.home.models.UserModel
-import com.example.home.ui.mapHome.NavMapFragment
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -58,7 +56,11 @@ class ApplicationMap private constructor(
     private val coroutineScope = CoroutineScope(Dispatchers.Main + job)
 
     private val markerAnimation: MarkerAnimation by lazy {
-        MarkerAnimation.create(map, application, lifecycleOwner)
+        MarkerAnimation.create(
+            map,
+            application,
+            lifecycleOwner
+        )
     }
 
     companion object {
@@ -77,7 +79,11 @@ class ApplicationMap private constructor(
             application: Application,
             map: GoogleMap
         ): ApplicationMap {
-            return ApplicationMap(lifecycleOwner, application, map)
+            return ApplicationMap(
+                lifecycleOwner,
+                application,
+                map
+            )
         }
 
 
@@ -320,7 +326,11 @@ class ApplicationMap private constructor(
         // Initialize the manager with the context and the map.
         val clusterMarkerManager = ClusterManager<UserClusterMarker>(application, map)
         customUserManagerRenderer =
-            CustomUserManagerRenderer(application, map, clusterMarkerManager)
+            CustomUserManagerRenderer(
+                application,
+                map,
+                clusterMarkerManager
+            )
         clusterMarkerManager.renderer = customUserManagerRenderer
 
         /*  // Point the map's listeners at the listeners implemented by the cluster
@@ -344,7 +354,8 @@ class ApplicationMap private constructor(
          }
          customUserManagerRenderer.updateMarkerPosition(currentUserClusterMarker)*/
         if (!listOfCurrentUsers.containsKey(userId)) {
-            listOfCurrentUsers[userId] = UserClusterMarker(mapModel)
+            listOfCurrentUsers[userId] =
+                UserClusterMarker(mapModel)
         } else {
             listOfCurrentUsers[userId]?.mapModel = mapModel
         }

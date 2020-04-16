@@ -1,4 +1,4 @@
-package com.example.home.customMap
+package com.example.home.custom.map
 
 import android.app.Application
 import android.os.Handler
@@ -39,7 +39,11 @@ class MarkerAnimation private constructor(
             application: Application,
             lifecycleOwner: LifecycleOwner
         ): MarkerAnimation {
-            return MarkerAnimation(lifecycleOwner, map, application)
+            return MarkerAnimation(
+                lifecycleOwner,
+                map,
+                application
+            )
         }
     }
 
@@ -53,7 +57,8 @@ class MarkerAnimation private constructor(
         var start = SystemClock.uptimeMillis()
         var startIndex = 0
         var endIndex = 1
-        val listOfLatLng = PolyLineDecoder.startDecode(result)
+        val listOfLatLng =
+            PolyLineDecoder.startDecode(result)
         //crating polyline on current user position to update it later as animation goes on
         val polyline = addPolyline(listOfLatLng[0])
         runnable = object : Runnable {
@@ -165,7 +170,11 @@ class MarkerAnimation private constructor(
         removePolylines()
         val polyline = map
             .addPolyline(
-                PolylineOptions().addAll(PolyLineDecoder.startDecode(result))
+                PolylineOptions().addAll(
+                    PolyLineDecoder.startDecode(
+                        result
+                    )
+                )
                     .clickable(true)
                     .color(ContextCompat.getColor(application, R.color.colorPrimary))
             )

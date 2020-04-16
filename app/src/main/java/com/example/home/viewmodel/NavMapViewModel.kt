@@ -3,9 +3,9 @@ package com.example.home.viewmodel
 import android.app.Application
 import androidx.lifecycle.*
 import com.example.home.Event
-import com.example.home.customMap.ApplicationMap
+import com.example.home.custom.map.ApplicationMap
 import com.example.home.database.FireStore
-import com.example.home.isGpsEnabled
+import com.example.home.extensions.isGpsEnabled
 import com.example.home.models.MapModel
 import com.example.home.models.MonitorRequest
 import com.example.home.models.currentUser
@@ -13,7 +13,7 @@ import com.google.android.gms.maps.GoogleMap
 
 class MapViewModel(application: Application) : AndroidViewModel(application) {
     private lateinit var applicationMap: ApplicationMap
-    private val fireStore = FireStore(application)
+    private val fireStore = FireStore()
 
     //represent the current user location of lat and long
     private lateinit var mapModel: MapModel
@@ -101,7 +101,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
             applicationMap.setOntLocationChangeListener { mapModel ->
                 this.mapModel = mapModel
                 mapModel.apply {
-                    userImage = currentUser.userImage.toString()
+                    userImage = currentUser.userImageUri.toString()
                     userName = currentUser.userName.toString()
                 }
                 //track the current location of a user then push into firestore database so it will be shared across all devices

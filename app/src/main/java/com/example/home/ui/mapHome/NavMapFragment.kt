@@ -13,8 +13,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
-import com.example.home.*
+import com.example.home.EventObserver
+import com.example.home.MainActivity
+import com.example.home.PLACE_DETAILS
+import com.example.home.R
 import com.example.home.databinding.FragmentNavMapBinding
+import com.example.home.extensions.getImageDrawable
 import com.example.home.models.MapModel
 import com.example.home.models.currentUser
 import com.example.home.viewmodel.MapViewModel
@@ -58,14 +62,16 @@ class NavMapFragment : Fragment(), OnMapReadyCallback {
 
 
     private fun monitorRequestObserver() {
-        mapViewModel.monitorRequestObserver {
-            MaterialAlertDialogBuilder(context).setIcon(it.from?.userImage?.getImageDrawable(requireContext()))
-                .setTitle("Monitor Request")
-                .setMessage("${it.from?.userName} has requested monitoring you")
-                .setPositiveButton("Accept") { _, _ ->
-                }.setNegativeButton("Decline") { dialog, _ ->
-                    dialog.cancel()
-                }.show()
+        mapViewModel.monitorRequestObserver {monitorRequest->
+            monitorRequest.from?.userImageUri.getImageDrawable(requireContext()){
+                MaterialAlertDialogBuilder(context).setIcon(it)
+                    .setTitle("Monitor Request")
+                    .setMessage("${monitorRequest.from?.userName} has requested monitoring you")
+                    .setPositiveButton("Accept") { _, _ ->
+                    }.setNegativeButton("Decline") { dialog, _ ->
+                        dialog.cancel()
+                    }.show()
+            }
         }
     }
 

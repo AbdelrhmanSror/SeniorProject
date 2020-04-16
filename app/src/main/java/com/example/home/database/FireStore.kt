@@ -1,12 +1,11 @@
 package com.example.home.database
 
-import android.content.Context
 import android.util.Log
 import com.example.home.models.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.MetadataChanges
 
-class FireStore(private val context: Context) {
+class FireStore() {
     private val fireStore = FirebaseFirestore.getInstance()
 
     //reference to main collection
@@ -29,10 +28,7 @@ class FireStore(private val context: Context) {
     }
 
 
-    fun observeMonitoringRequest(requestObserver:(request:MonitorRequest)->Unit) {
-        monitorRequestRef.set(MonitorRequest(UserModel("Ahmed","ahmed@gmail.com", "https://image.shutterstock.com/image-photo/bright-spring-view-cameo-island-260nw-1048185397.jpg"),
-            UserModel("abdelrhman","abdelrhman@gmail.com"),false
-        ))
+    fun observeMonitoringRequest(requestObserver: (request: MonitorRequest) -> Unit) {
         monitorRequestRef.addSnapshotListener(MetadataChanges.INCLUDE) { value, e ->
             if (e != null) {
                 Log.w("mapModelTrigger", "Listen failed.", e)
@@ -49,6 +45,7 @@ class FireStore(private val context: Context) {
             }
         }
     }
+
     /**
      * get the location of current user monitors
      */

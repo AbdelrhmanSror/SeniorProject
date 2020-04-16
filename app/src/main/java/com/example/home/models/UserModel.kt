@@ -5,7 +5,7 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
-data class UserModel(val userName:String?=null, val email:String?=null, val userImage: String?=null):
+data class UserModel(val userName:String?=null, val email:String?=null, val userImageUri: String?=null):
     Parcelable
 
 val currentUser: UserModel by lazy {

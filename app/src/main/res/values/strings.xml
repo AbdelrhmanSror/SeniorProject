@@ -21,6 +21,10 @@
     <string name="close_drawer">Close Drawer</string>
     <string name="open_drawer">Open Drawer</string>
     <string name="PlaceApiKey">AIzaSyA0eqlJfsa4Hfq6Z5cIMk0bXPlVJu21J5g</string>
+    <string name="Track">Track</string>
+    <string name="monitorRequest">Send a Monitor Request to a Friends/Family</string>
+    <string name="sendRequest">Send</string>
+    <string name="dismissRequest">Dismiss</string>
 
 
 </resources>

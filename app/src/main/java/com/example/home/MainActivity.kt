@@ -1,9 +1,9 @@
 package com.example.home
 
 import android.os.Bundle
+import android.text.InputType
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
@@ -11,8 +11,16 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.afollestad.materialdialogs.LayoutMode
+import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.bottomsheets.BottomSheet
+import com.afollestad.materialdialogs.customview.customView
+import com.afollestad.materialdialogs.input.input
 import com.example.home.databinding.ActivityMainBinding
 import com.example.home.databinding.DrawerHeaderBinding
+import com.example.home.extensions.hide
+import com.example.home.extensions.roundedCorner
+import com.example.home.extensions.show
 import com.example.home.models.UserModel
 import com.firebase.ui.auth.AuthUI
 
@@ -60,12 +68,33 @@ class MainActivity : AppCompatActivity() ,NavigationViewHandler{
                             }
                         true
                     }
-                    else ->
+                    else ->{
+                        MaterialDialog(context).show {
+                            title(R.string.monitorRequest)
+                            input(
+                                hint = "Type Person Name/Email",
+                                inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_WORDS
+                            ) { _, text ->
+                                binding.drawerLayout.hide()
+                                showLoadingDialog()
+
+                            }
+                            positiveButton(R.string.sendRequest)
+                            negativeButton(R.string.dismissRequest)
+                        }
                         false
+
+                    }
 
                 }
             }
         }
+    }
+    private fun showLoadingDialog() {
+       MaterialDialog(this, BottomSheet(LayoutMode.WRAP_CONTENT)).show {
+            customView(R.layout.custom_loading, scrollable = true,dialogWrapContent = true)
+        }
+
     }
     private fun navigateToStartDestination() {
         val inflater = navController.navInflater
@@ -90,16 +119,17 @@ class MainActivity : AppCompatActivity() ,NavigationViewHandler{
     }
 
 
+
     //preventing navigation drawer from being swiped anywhere other than the start destination
     private fun setUpNavSwipe() {
         navController.addOnDestinationChangedListener { _, nd: NavDestination, _ ->
             if (nd.id == R.id.navMapFragment) {
                 supportActionBar?.show()
-                binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+                binding.drawerLayout.show()
 
             } else {
                 supportActionBar?.hide()
-                binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+                binding.drawerLayout.hide()
             }
         }
     }

@@ -1,12 +1,12 @@
-package com.example.home.customMap
+package com.example.home.custom.map
 
 import android.content.Context
 import android.graphics.Bitmap
 import android.view.ViewGroup
 import android.widget.ImageView
 import com.example.home.R
+import com.example.home.extensions.setImageUri
 import com.example.home.models.toUri
-import com.example.home.setImageUri
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.Marker
