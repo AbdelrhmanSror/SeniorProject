@@ -1,28 +1,45 @@
 package com.example.home.ui.mapHome
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.view.*
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
-import com.example.home.EventObserver
-import com.example.home.MainActivity
-import com.example.home.PLACE_DETAILS
-import com.example.home.R
+import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.ModalDialog
+import com.afollestad.materialdialogs.customview.customView
+import com.afollestad.materialdialogs.customview.getCustomView
+import com.example.home.*
+import com.example.home.custom.LoadingDialog
+import com.example.home.custom.RequestInfoDialog
+import com.example.home.databinding.ActivityMainBinding
+import com.example.home.databinding.DrawerHeaderBinding
 import com.example.home.databinding.FragmentNavMapBinding
 import com.example.home.extensions.getImageDrawable
+import com.example.home.extensions.roundedCorner
+import com.example.home.extensions.setImageUri
 import com.example.home.models.MapModel
+import com.example.home.models.MonitorRequest
 import com.example.home.models.currentUser
+import com.example.home.models.toUri
 import com.example.home.viewmodel.MapViewModel
 import com.example.home.viewmodel.NavMapViewModelFactory
+import com.firebase.ui.auth.AuthUI
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
@@ -34,7 +51,10 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 class NavMapFragment : Fragment(), OnMapReadyCallback {
     private lateinit var binding: FragmentNavMapBinding
     private val mapViewModel: MapViewModel by lazy {
-        ViewModelProvider(requireActivity(), NavMapViewModelFactory(requireActivity().application)).get(
+        ViewModelProvider(
+            requireActivity(),
+            NavMapViewModelFactory(requireActivity().application)
+        ).get(
             MapViewModel::class.java
         )
     }
@@ -49,6 +69,7 @@ class NavMapFragment : Fragment(), OnMapReadyCallback {
         setHasOptionsMenu(true)
         handleDrawerLayout()
         monitorRequestObserver()
+        setupNavView()
         // Set up the views
         return binding.root
     }
@@ -62,15 +83,17 @@ class NavMapFragment : Fragment(), OnMapReadyCallback {
 
 
     private fun monitorRequestObserver() {
-        mapViewModel.monitorRequestObserver {monitorRequest->
-            monitorRequest.from?.userImageUri.getImageDrawable(requireContext()){
+        mapViewModel.monitorRequestObserver { monitorRequest ->
+            monitorRequest.from?.userImageUri.getImageDrawable(requireContext()) {
                 MaterialAlertDialogBuilder(context).setIcon(it)
                     .setTitle("Monitor Request")
-                    .setMessage("${monitorRequest.from?.userName} has requested monitoring you")
+                    .setMessage(getString(R.string.monitorRequestResponse,monitorRequest.from?.userName))
                     .setPositiveButton("Accept") { _, _ ->
-                    }.setNegativeButton("Decline") { dialog, _ ->
-                        dialog.cancel()
-                    }.show()
+                        mapViewModel.addMonitoredPerson(
+                            monitorRequest.from?.userName!!,
+                            monitorRequest.to?.userName!!
+                        )
+                    }.setNegativeButton("Decline") { dialog, _ -> dialog.cancel() }.show()
             }
         }
     }
@@ -99,6 +122,77 @@ class NavMapFragment : Fragment(), OnMapReadyCallback {
             }.setNegativeButton(getString(R.string.negative_gps_enable_answer)) { dialog, _ ->
                 dialog.cancel()
             }.show()
+    }
+
+    private fun signOut() {
+        AuthUI.getInstance()
+            .signOut(requireContext())
+            .addOnCompleteListener {
+                //navigate to login screen when user sign out
+                (requireActivity() as MainActivity).navController.navigate(R.id.authFragment)
+            }
+    }
+
+    private fun setupNavView() {
+        (requireActivity() as MainActivity).binding.navView.apply {
+            roundedCorner(100f)
+            setNavigationItemSelectedListener {
+                when (it.itemId) {
+                    R.id.signOut -> {
+                        signOut()
+                        true
+                    }
+                    else -> {
+                        track(context)
+                        false
+
+                    }
+
+                }
+            }
+        }
+    }
+
+    private fun track(context: Context) {
+        MaterialDialog(context, ModalDialog).show {
+            title(R.string.monitorRequest)
+            customView(R.layout.request_typo)
+            positiveButton(R.string.sendRequest) { trackDialog ->
+                //once user writes the email i go search for it in the database
+                mapViewModel.searchForUsingEmail(
+                    trackDialog.getCustomView()
+                        .findViewById<EditText>(R.id.monitorEmail).text.toString()
+                ) { userModel ->
+                    Log.v("userModelMonitoREQuest", "$userModel")
+                    //show loading dialog for 2sec
+                    LoadingDialog.showLoadingDialog(requireActivity(), 2000) {
+                        //show info of the person that u want to send monitor request
+                        RequestInfoDialog.showCustomViewDialog(requireActivity(), { infoDialog ->
+                            val view = infoDialog.getCustomView()
+                            val userImage =
+                                view.findViewById<ImageView>(R.id.receiverImage)
+                            val userName =
+                                view.findViewById<TextView>(R.id.receiverName)
+                            val userEmail =
+                                view.findViewById<TextView>(R.id.receiverEmail)
+                            userImage.setImageUri(userModel?.userImageUri?.toUri())
+                            userName.text = userModel?.userName
+                            userEmail.text = userModel?.email
+
+                        }) {
+                            mapViewModel.sendRequest(MonitorRequest(currentUser,userModel))
+                            //on positive button clicked
+
+                        }
+                    }
+
+                }
+
+
+            }
+            negativeButton(R.string.dismissRequest)
+
+        }
     }
 
 

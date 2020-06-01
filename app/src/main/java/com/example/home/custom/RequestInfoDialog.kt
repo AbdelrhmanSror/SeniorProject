@@ -11,8 +11,7 @@ import com.example.home.R
 object RequestInfoDialog {
     fun showCustomViewDialog(
         context: Context,
-        dialog: (MaterialDialog) -> Unit,positiveClicked: () -> Unit
-    ) {
+        dialog: (MaterialDialog) -> Unit,positiveClicked: () -> Unit) {
        val infoDialog= MaterialDialog(context, BottomSheet(LayoutMode.WRAP_CONTENT)).show {
             title(R.string.monitorRequest)
             customView(R.layout.request_info, scrollable = true, horizontalPadding = true)

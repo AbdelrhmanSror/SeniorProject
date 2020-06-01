@@ -40,15 +40,10 @@ interface NavigationViewHandler {
 
 class MainActivity : AppCompatActivity(), NavigationViewHandler {
     private lateinit var appBarConfiguration: AppBarConfiguration
-    private lateinit var navController: NavController
-    private lateinit var binding: ActivityMainBinding
+    lateinit var navController: NavController
+    lateinit var binding: ActivityMainBinding
     private lateinit var drawerHeaderBinding: DrawerHeaderBinding
     private lateinit var audioPermission: AudioPermission
-    private val mapViewModel: MapViewModel by lazy {
-        ViewModelProvider(this, NavMapViewModelFactory(application)).get(
-            MapViewModel::class.java
-        )
-    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,73 +61,11 @@ class MainActivity : AppCompatActivity(), NavigationViewHandler {
         setSupportActionBar(findViewById(R.id.toolbar))
         setupActionBarWithNavController(navController, appBarConfiguration)
         binding.navView.setupWithNavController(navController)
-        setupNavView()
         setUpNavSwipe()
 
 
     }
 
-    private fun signOut() {
-        AuthUI.getInstance()
-            .signOut(this@MainActivity)
-            .addOnCompleteListener {
-                //navigate to login screen when user sign out
-                navController.navigate(R.id.authFragment)
-            }
-    }
-
-    private fun setupNavView() {
-        binding.navView.apply {
-            roundedCorner(100f)
-            setNavigationItemSelectedListener {
-                when (it.itemId) {
-                    R.id.signOut -> {
-                        signOut()
-                        true
-                    }
-                    else -> {
-                        MaterialDialog(context, ModalDialog).show {
-                            title(R.string.monitorRequest)
-                            customView(R.layout.request_typo)
-                            positiveButton(R.string.sendRequest) { trackDialog ->
-                                //once user writes the email i go search for it in the database
-                                mapViewModel.searchForUsingEmail(trackDialog.getCustomView().findViewById<EditText>(R.id.monitorEmail).text.toString()) { mapModel ->
-                                    Log.v("userModelMonitoREQuest", "$mapModel")
-                                    //show loading dialog for 2sec
-                                    LoadingDialog.showLoadingDialog(this@MainActivity, 2000) {
-                                        //show info of the person has received monitoring request
-                                        RequestInfoDialog.showCustomViewDialog(this@MainActivity,{infoDialog->
-                                            val view = infoDialog.getCustomView()
-                                            val userImage =
-                                                view.findViewById<ImageView>(R.id.receiverImage)
-                                            val userName =
-                                                view.findViewById<TextView>(R.id.receiverName)
-                                            val userEmail =
-                                                view.findViewById<TextView>(R.id.receiverEmail)
-                                            userImage.setImageUri(mapModel?.userModel?.userImageUri?.toUri())
-                                            userName.text = mapModel?.userModel?.userName
-                                            userEmail.text = mapModel?.userModel?.email
-
-                                        }){
-                                            //on positive button clicked
-                                        }
-                                    }
-
-                                }
-
-
-                            }
-                            negativeButton(R.string.dismissRequest)
-
-                        }
-                        false
-
-                    }
-
-                }
-            }
-        }
-    }
 
     private fun navigateToStartDestination() {
         val inflater = navController.navInflater

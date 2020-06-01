@@ -30,6 +30,7 @@
     <string name="name">User Name</string>
     <string name="email">Email</string>
     <string name="connect">Connect</string>
+    <string name="monitorRequestResponse"><b>%1$s</b> has requested to monitor you</string>
 
 
 </resources>

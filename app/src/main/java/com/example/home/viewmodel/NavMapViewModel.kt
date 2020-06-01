@@ -6,11 +6,9 @@ import com.example.home.Event
 import com.example.home.custom.map.ApplicationMap
 import com.example.home.database.FireStore
 import com.example.home.extensions.isGpsEnabled
-import com.example.home.models.MapModel
-import com.example.home.models.MonitorRequest
-import com.example.home.models.UserModel
-import com.example.home.models.currentUser
+import com.example.home.models.*
 import com.google.android.gms.maps.GoogleMap
+import com.google.firebase.firestore.FieldValue
 
 class MapViewModel(application: Application) : AndroidViewModel(application) {
     private lateinit var applicationMap: ApplicationMap
@@ -52,7 +50,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         fireStore.getCurrentUserModel { id, userLocation ->
             applicationMap.updateCluster(id, userLocation)
         }
-        fireStore.getCurrentMonitorsModel { id, userLocation ->
+        fireStore.getMonitoredPersonsLocation { id, userLocation ->
             applicationMap.updateCluster(id, userLocation)
         }
     }
@@ -61,6 +59,12 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
         fireStore.observeMonitoringRequest {
             observer(it)
         }
+    }
+    fun sendRequest(request: MonitorRequest){
+        fireStore.sendMonitoringRequest(request)
+    }
+    fun addMonitoredPerson(monitorId: monitorId,monitoredPersonId:monitorId){
+        fireStore.addMonitoredPerson(monitorId,monitoredPersonId)
     }
 
 
@@ -92,7 +96,7 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
     }
 
-    fun searchForUsingEmail(email: String, observer: (MapModel?) -> Unit) {
+    fun searchForUsingEmail(email: String, observer: (UserModel?) -> Unit) {
         fireStore.fetchUserDataBasedOnEmail(email) {
             observer(it)
         }

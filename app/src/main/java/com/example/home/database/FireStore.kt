@@ -2,6 +2,7 @@ package com.example.home.database
 
 import android.util.Log
 import com.example.home.models.*
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.MetadataChanges
 
@@ -28,6 +29,10 @@ class FireStore() {
     }
 
 
+    fun addMonitoredPerson(monitorId: monitorId,monitoredPersonId:monitorId){
+        mainCollectionRef.document(monitorId).collection("monitors").document("monitor").update("monitorId", FieldValue.arrayUnion(monitoredPersonId))
+
+    }
     fun observeMonitoringRequest(requestObserver: (request: MonitorRequest) -> Unit) {
         monitorRequestRef.addSnapshotListener(MetadataChanges.INCLUDE) { value, e ->
             if (e != null) {
@@ -37,6 +42,7 @@ class FireStore() {
             value?.let {
                 val request = it.toObject(MonitorRequest::class.java)
                 if (request!!.isRequest) {
+                    Log.v("mapModelTrigger", "request has recieved.")
                     monitorRequestRef.set(MonitorRequest(isRequest = false))
                     requestObserver(request)
                 }
@@ -46,11 +52,16 @@ class FireStore() {
         }
     }
 
+    //temporarily just search for user using his/her name but edit it to be by email
+    fun sendMonitoringRequest(request: MonitorRequest) {
+        mainCollectionRef.document("${request.to?.userName}").collection("Request").document("MonitorRequest").set(request)
+    }
+
     /**
      * get the location of current user monitors
      */
-    fun getCurrentMonitorsModel(whatEverToDo: (id: String, userLocation: MapModel) -> Unit) {
-        getCurrentUserMonitors {
+    fun getMonitoredPersonsLocation(whatEverToDo: (id: String, userLocation: MapModel) -> Unit) {
+        getMonitoredPersons {
             mainCollectionRef.addSnapshotListener { value, e ->
                 if (e != null) {
                     Log.w("mapModelTrigger", "Listen failed.", e)
@@ -72,7 +83,7 @@ class FireStore() {
     /**
      * get list of current user monitors id
      */
-    private fun getCurrentUserMonitors(listOfMonitors: (monitors: HashSet<monitorId>) -> Unit) {
+    private fun getMonitoredPersons(listOfMonitors: (monitors: HashSet<monitorId>) -> Unit) {
         monitorCollectionRef.addSnapshotListener(MetadataChanges.INCLUDE) { value, e ->
             if (e != null) {
                 Log.w("mapModelTrigger", "Listen failed.", e)
@@ -89,13 +100,16 @@ class FireStore() {
     /**
      * return the data of specific user
      */
-    fun fetchUserDataBasedOnEmail(email: String, userData: (MapModel?) -> Unit) {
-        mainCollectionRef.document("Mohamed").get().addOnSuccessListener { document ->
-            if (!document.exists())
-                userData(null)
-            else
-                userData(document.toObject(MapModel::class.java))
-        }
+    fun fetchUserDataBasedOnEmail(email: String, userData: (UserModel?) -> Unit) {
+        mainCollectionRef
+            .whereEqualTo("userModel.email",email)
+            .get()
+            .addOnSuccessListener { documents ->
+                for (document in documents) {
+                    Log.v("documentRequest","done ${document.id}")
+                    userData(document.toObject(MapModel::class.java).userModel)
+                }
+            }
     }
 
     /**
