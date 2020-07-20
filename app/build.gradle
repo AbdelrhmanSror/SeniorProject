@@ -94,6 +94,7 @@ dependencies {
 
     //google directions
     implementation 'com.google.maps:google-maps-services:0.10.1'
+
     //firestore
     implementation 'com.google.firebase:firebase-firestore:21.4.2'
 

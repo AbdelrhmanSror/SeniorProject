@@ -45,6 +45,7 @@
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toEndOf="@+id/backButton"
                     app:layout_constraintTop_toTopOf="@+id/backButton"
+                    android:contentDescription="@string/search_text"
                     app:layout_constraintVertical_bias="1.0" />
 
                 <androidx.recyclerview.widget.RecyclerView
@@ -55,13 +56,15 @@
                     android:layout_marginEnd="@dimen/large_margin"
                     android:background="@color/white"
                     android:visibility="visible"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/divider3"
                     tools:visibility="visible" />
+<!--
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+-->
 
                 <ImageButton
                     android:id="@+id/backButton"
@@ -72,11 +75,11 @@
                     android:backgroundTint="@color/white"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
+                    android:contentDescription="@string/back"
                     app:srcCompat="@drawable/ic_arrow_back_black_24dp" />
 
                 <ImageButton
                     android:id="@+id/imageButton"
-                    app:searchVoiceAnim="@{searchViewModel.searchVoiceAnimation}"
                     android:layout_width="wrap_content"
                     android:onClick="@{()->searchViewModel.startVoiceRecorder()}"
                     android:tag="search"
@@ -86,7 +89,8 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/input_edit_text"
                     app:layout_constraintVertical_bias="1.0"
-                    app:srcCompat="@drawable/search_voice_animation" />
+                    android:contentDescription="@string/voice_search"
+                    app:srcCompat="@drawable/voice_search_animation" />
 
                 <View
                     android:id="@+id/divider3"

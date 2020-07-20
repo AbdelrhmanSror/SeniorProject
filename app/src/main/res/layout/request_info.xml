@@ -10,6 +10,7 @@
     <ImageView
         android:id="@+id/receiverImage"
         android:layout_width="50dp"
+        android:contentDescription="@string/image"
         android:layout_height="50dp"
         android:layout_margin="4dp"
         tools:src="@drawable/person"
@@ -20,6 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="18dp"
         android:text="@string/name"
+        android:contentDescription="@string/name"
         android:textColor="?android:textColorSecondary"
         android:textSize="@dimen/customTitle"
         />

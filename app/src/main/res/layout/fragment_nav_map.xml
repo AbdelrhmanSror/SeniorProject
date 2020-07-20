@@ -13,6 +13,7 @@
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
+        android:contentDescription="@string/map"
         android:layout_height="match_parent">
 
         <fragment
@@ -31,6 +32,7 @@
             android:layout_margin="@dimen/large_margin"
             android:backgroundTint="@color/colorPrimary"
             android:clickable="true"
+            android:contentDescription="@string/navigate"
             android:focusable="true"
             android:onClick="@{()->viewModel.onNavigationFabClicked()}"
             app:borderWidth="0dp"

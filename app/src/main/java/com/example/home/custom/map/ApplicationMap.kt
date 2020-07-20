@@ -1,5 +1,6 @@
 package com.example.home.custom.map
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.content.res.Resources
@@ -72,7 +73,7 @@ class ApplicationMap private constructor(
         15: Streets
         20: Buildings
          */
-        private const val DEFAULT_ZOOM = 15f
+        private const val DEFAULT_ZOOM =15f
 
         fun create(
             lifecycleOwner: LifecycleOwner,
@@ -156,6 +157,7 @@ class ApplicationMap private constructor(
      * request the current user location
      * this function accept higher order function to execute when the location is ready
      */
+    @SuppressLint("MissingPermission")
     private fun requestCurrentDeviceLocation(onLocationResult: ((Location) -> Unit)) {
         val locationResult = fusedLocationProviderClient.lastLocation
         locationResult.addOnCompleteListener { task ->
@@ -176,6 +178,7 @@ class ApplicationMap private constructor(
      * here we can update the marker position on map
      */
     //@RequiresPermission(value = Manifest.permission.ACCESS_FINE_LOCATION)
+    @SuppressLint("MissingPermission")
     fun setOntLocationChangeListener(update: (mapModel: MapModel) -> Unit) {
         val request = LocationRequest()
         request.interval = 10000
@@ -238,10 +241,26 @@ class ApplicationMap private constructor(
             )
         )
     }
+    fun navigateToSpecificLocation(mapModel: MapModel){
+        //marker?.remove()
+        val snippet = application.getString(R.string.lat_long_snippet, mapModel.latitude, mapModel.longitude)
+        marker = map.addMarker(
+            MarkerOptions().position(LatLng(mapModel.latitude,mapModel.longitude))
+                .title(
+                    getLocationDetails(mapModel.latitude, mapModel.longitude)
+                        ?: application.getString(R.string.dropped_pin)
+                ).snippet(
+                    snippet
+                ).icon(
+                    R.drawable.map_marker.bitmapDescriptorFromVector(application)
+                )
+        )
+        calculateDirections(marker!!)
+    }
 
     /**
      * This click listener places a marker on the mMap immediately when the user clicks on a POI.
-     * The click listener also displays an info window that contains the POI name
+     * The click listener also displays an info window that contains the POI name and image if available
      */
     private fun setOnPoiClick() {
         map.setOnPoiClickListener {
@@ -297,8 +316,7 @@ class ApplicationMap private constructor(
     private fun setOnMapLongClick() {
         map.setOnMapLongClickListener {
             marker?.remove()
-            val snippet =
-                application.getString(R.string.lat_long_snippet, it.latitude, it.longitude)
+            val snippet = application.getString(R.string.lat_long_snippet, it.latitude, it.longitude)
             marker = map.addMarker(
                 MarkerOptions().position(it)
                     .title(
@@ -333,15 +351,6 @@ class ApplicationMap private constructor(
             )
         clusterMarkerManager.renderer = customUserManagerRenderer
 
-        /*  // Point the map's listeners at the listeners implemented by the cluster
-          //map.setOnCameraIdleListener(clusterMarkerManager)
-          //map.setOnMarkerClickListener(clusterMarkerManager)
-          requestCurrentDeviceLocation { location ->
-              currentUserClusterMarker =
-                  UserClusterMarker(MapModel(location.latitude, location.longitude), user)
-              clusterMarkerManager.addItem(currentUserClusterMarker)
-              clusterMarkerManager.cluster()
-          }*/
     }
 
     fun updateCluster(userId: String, mapModel: MapModel) {

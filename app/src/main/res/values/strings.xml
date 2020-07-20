@@ -31,6 +31,15 @@
     <string name="email">Email</string>
     <string name="connect">Connect</string>
     <string name="monitorRequestResponse"><b>%1$s</b> has requested to monitor you</string>
+    <string name="voice_search">search by voice</string>
+    <string name="search_text">search by text</string>
+    <string name="back">back</string>
+    <string name="image">your image</string>
+    <string name="navigate">navigate to current location</string>
+    <string name="map">map</string>
+    <string name="email_typing">enter your email</string>
+    <string name="loading">loading</string>
+    <string name="locationConfirmation">Are you sure you want to proceed with this location</string>
 
 
 </resources>

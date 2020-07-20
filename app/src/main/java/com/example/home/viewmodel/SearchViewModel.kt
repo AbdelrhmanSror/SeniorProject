@@ -6,6 +6,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
+import android.speech.tts.TextToSpeech
+import android.speech.tts.TextToSpeech.OnInitListener
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -13,6 +15,7 @@ import androidx.lifecycle.MutableLiveData
 import com.example.home.models.MapModel
 import com.example.home.service.SpeechService
 import com.example.home.ui.search.VoiceRecorder
+import java.util.*
 
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -23,6 +26,10 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private val _searchText = MutableLiveData<String>()
     val searchText: LiveData<String>
         get() = _searchText
+    private val _record=MutableLiveData<Boolean>()
+    val record:LiveData<Boolean>
+    get() = _record
+
 
 
     private val _searchVoiceAnimation = MutableLiveData<Boolean>()
@@ -64,6 +71,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             mServiceConnection,
             Context.BIND_AUTO_CREATE
         )
+
+
     }
 
     fun startNavigation(mapModel: MapModel) {
@@ -85,15 +94,17 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             mVoiceRecorder?.stop()
         }
         Log.v("startingavOUCVD", "DONE")
+        _record.value=true
 
-        mVoiceRecorder = VoiceRecorder(mVoiceCallback)
-        mVoiceRecorder?.start()
+       /* mVoiceRecorder = VoiceRecorder(mVoiceCallback)
+        mVoiceRecorder?.start()*/
     }
 
     private fun stopVoiceRecorder() {
         Log.v("startingavOUCVD", "stop")
-        mVoiceRecorder?.stop()
-        mVoiceRecorder = null
+      /*  mVoiceRecorder?.stop()
+        mVoiceRecorder = null*/
+        _record.value=false
 
     }
 

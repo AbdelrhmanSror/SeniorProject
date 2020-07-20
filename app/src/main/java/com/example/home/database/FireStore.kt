@@ -24,6 +24,7 @@ class FireStore() {
     private val monitorRequestRef =
         userCollectionRef.collection("Request").document("MonitorRequest")
 
+    //load current user location on map or update it
     fun updateUserData(mapModel: MapModel) {
         userCollectionRef.set(mapModel)
     }
@@ -42,7 +43,7 @@ class FireStore() {
             value?.let {
                 val request = it.toObject(MonitorRequest::class.java)
                 if (request!!.isRequest) {
-                    Log.v("mapModelTrigger", "request has recieved.")
+                    Log.v("mapModelTrigger", "request has received.")
                     monitorRequestRef.set(MonitorRequest(isRequest = false))
                     requestObserver(request)
                 }
@@ -57,9 +58,7 @@ class FireStore() {
         mainCollectionRef.document("${request.to?.userName}").collection("Request").document("MonitorRequest").set(request)
     }
 
-    /**
-     * get the location of current user monitors
-     */
+
     fun getMonitoredPersonsLocation(whatEverToDo: (id: String, userLocation: MapModel) -> Unit) {
         getMonitoredPersons {
             mainCollectionRef.addSnapshotListener { value, e ->
@@ -70,8 +69,15 @@ class FireStore() {
                 for (doc in value!!) {
                     if (it.contains(doc.id)) {
                         Log.v("currentMonitors", doc.id)
-                        val userLocation = doc.toObject(MapModel::class.java)
-                        whatEverToDo(doc.id, userLocation)
+                        if(doc["latitude"] is String){
+                            val userLocation = doc.toObject(MapModel2::class.java)
+                            whatEverToDo(doc.id, userLocation.toMapModel())
+
+                        }else{
+                            val userLocation = doc.toObject(MapModel::class.java)
+                            whatEverToDo(doc.id, userLocation)
+
+                        }
                     }
                 }
             }
@@ -81,7 +87,7 @@ class FireStore() {
     }
 
     /**
-     * get list of current user monitors id
+     * get list of  id
      */
     private fun getMonitoredPersons(listOfMonitors: (monitors: HashSet<monitorId>) -> Unit) {
         monitorCollectionRef.addSnapshotListener(MetadataChanges.INCLUDE) { value, e ->
@@ -106,8 +112,15 @@ class FireStore() {
             .get()
             .addOnSuccessListener { documents ->
                 for (document in documents) {
+                    if(document["latitude"] is String){
+                        val userLocation = document.toObject(MapModel2::class.java)
+                        userData(userLocation.userModel)
+
+                    }else{
+                        val userLocation = document.toObject(MapModel::class.java)
+                        userData(userLocation.userModel)
+                    }
                     Log.v("documentRequest","done ${document.id}")
-                    userData(document.toObject(MapModel::class.java).userModel)
                 }
             }
     }
@@ -123,9 +136,14 @@ class FireStore() {
             }
             //val listOfUser = ArrayList<RemoteSourceModel>()
             value?.let {
-                val userLocation = it.toObject(MapModel::class.java)
-                Log.v("currentUser", "$userLocation")
-                whatEverToDo(value.id, userLocation!!)
+                if(it["latitude"] is String){
+                   val userLocation = it.toObject(MapModel2::class.java)
+                    whatEverToDo(value.id, userLocation!!.toMapModel())
+
+                }else{
+                   val userLocation = it.toObject(MapModel::class.java)
+                    whatEverToDo(value.id, userLocation!!)
+                }
             }
 
 

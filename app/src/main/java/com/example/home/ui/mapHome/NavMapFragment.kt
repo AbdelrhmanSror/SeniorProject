@@ -3,8 +3,8 @@ package com.example.home.ui.mapHome
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.provider.Settings
-import android.util.Log
 import android.view.*
 import android.widget.EditText
 import android.widget.ImageView
@@ -15,10 +15,8 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.ModalDialog
@@ -27,8 +25,6 @@ import com.afollestad.materialdialogs.customview.getCustomView
 import com.example.home.*
 import com.example.home.custom.LoadingDialog
 import com.example.home.custom.RequestInfoDialog
-import com.example.home.databinding.ActivityMainBinding
-import com.example.home.databinding.DrawerHeaderBinding
 import com.example.home.databinding.FragmentNavMapBinding
 import com.example.home.extensions.getImageDrawable
 import com.example.home.extensions.roundedCorner
@@ -143,7 +139,7 @@ class NavMapFragment : Fragment(), OnMapReadyCallback {
                         true
                     }
                     else -> {
-                        track(context)
+                        RequestTracking(context)
                         false
 
                     }
@@ -153,7 +149,7 @@ class NavMapFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-    private fun track(context: Context) {
+    private fun RequestTracking(context: Context) {
         MaterialDialog(context, ModalDialog).show {
             title(R.string.monitorRequest)
             customView(R.layout.request_typo)
@@ -163,7 +159,6 @@ class NavMapFragment : Fragment(), OnMapReadyCallback {
                     trackDialog.getCustomView()
                         .findViewById<EditText>(R.id.monitorEmail).text.toString()
                 ) { userModel ->
-                    Log.v("userModelMonitoREQuest", "$userModel")
                     //show loading dialog for 2sec
                     LoadingDialog.showLoadingDialog(requireActivity(), 2000) {
                         //show info of the person that u want to send monitor request
@@ -200,6 +195,8 @@ class NavMapFragment : Fragment(), OnMapReadyCallback {
         //start searching for location if there  was a location coordinates coming  from search fragment
         arguments?.getParcelable<MapModel>(PLACE_DETAILS)?.let {
             mapViewModel.startSearching(it)
+            mapViewModel.navigateToSpecificLocation(it)
+
         }
 
         super.onResume()

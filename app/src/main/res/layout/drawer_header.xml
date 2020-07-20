@@ -23,6 +23,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="32dp"
             app:circularImageUri="@{user.userImageUri}"
+            android:contentDescription="@string/image"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:srcCompat="@drawable/ic_search_black_24dp" />
@@ -36,6 +37,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="28dp"
             android:text="@{user.userName}"
+            android:contentDescription="@{user.userName}"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/user_image"
@@ -48,6 +50,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="6dp"
             android:text="@{user.email}"
+            android:contentDescription="@{user.email}"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/user_name"

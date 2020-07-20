@@ -74,7 +74,7 @@ class MarkerAnimation private constructor(
                     }
                     val interpolationValue = calculateLatLngInBetween(
                         listOfLatLng[startIndex]
-                        , listOfLatLng[endIndex], start, 500
+                        , listOfLatLng[endIndex], start, 100
                     ) {
                         start = SystemClock.uptimeMillis()
                         startIndex++
@@ -89,8 +89,6 @@ class MarkerAnimation private constructor(
             }
         }
         handler.post(runnable)
-
-
     }
 
 
@@ -148,7 +146,7 @@ class MarkerAnimation private constructor(
         //crating polyline on given lat lng
         return map
             .addPolyline(
-                PolylineOptions().add(latLng).width(5f)
+                PolylineOptions().add(latLng).width(10f)
                     .clickable(true)
                     .color(ContextCompat.getColor(application, R.color.colorPrimary))
             )

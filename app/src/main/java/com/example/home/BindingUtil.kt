@@ -37,35 +37,3 @@ fun fabDrawable(fab: FloatingActionButton, enabled: Boolean) {
     }
 }
 
-
-/**
- * binding adapter to change the image of search button in search fragment so whne user start typing we animate it to voice image
- * and visa verse
- */
-@BindingAdapter("searchVoiceAnim")
-fun startSearchVoiceAnimation(imageButton: ImageButton, typing: Boolean) {
-    imageButton.apply {
-        val animatedVector: AnimatedVectorDrawableCompat?
-        /**
-         *representing the last state of animation if the user was typing or not
-         * if he was typing and the current state typing also so no need to animate
-         * the same the opposite
-         */
-        if (typing && this.tag != VOICE) {
-            this.tag = VOICE
-            animatedVector =
-                AnimatedVectorDrawableCompat.create(context, R.drawable.search_voice_animation)
-            setImageDrawable(animatedVector)
-            animatedVector?.start()
-
-        } else if (!typing && this.tag != SEARCH) {
-            this.tag = SEARCH
-            animatedVector =
-                AnimatedVectorDrawableCompat.create(context, R.drawable.voice_search_animation)
-            setImageDrawable(animatedVector)
-            animatedVector?.start()
-        }
-
-    }
-
-}

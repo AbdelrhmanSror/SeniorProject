@@ -19,24 +19,28 @@ import com.google.android.libraries.places.api.net.FetchPlaceRequest
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 
 
-data class PlaceDetails(val placeId:String,val name:String)
+data class PlaceDetails(val placeId: String, val name: String)
 
 /**
  * this class is responsible for fetching the suggestions of places using places api
  */
-class AutoCompleteSearch private constructor( context: Context) {
+class AutoCompleteSearch private constructor(context: Context) {
     //list of addresses to be returned
     private val stringList: ArrayList<PlaceDetails> = arrayListOf()
     private val token = AutocompleteSessionToken.newInstance()
     private val placesClient = createClient(context)
 
 
-    companion object{
+    companion object {
         fun init(context: Context): AutoCompleteSearch {
             return AutoCompleteSearch(context)
         }
     }
-    fun fetchAutoCompleteSearchList(inputText: String,placesList:(list:List<PlaceDetails>)->Unit) {
+
+    fun fetchAutoCompleteSearchList(
+        inputText: String,
+        placesList: (list: List<PlaceDetails>) -> Unit
+    ) {
 
         // Use the builder to create a FindAutocompletePredictionsRequest.
         val request = FindAutocompletePredictionsRequest.builder()
@@ -72,32 +76,32 @@ class AutoCompleteSearch private constructor( context: Context) {
         }
 
     }
-        fun getPlaceLatLng(id: String,placeRequest:(latLng:LatLng)->Unit)
-        {
-            // Define a Place ID.
 
-            // Specify the fields to return.
-            val placeFields = listOf(Place.Field.LAT_LNG)
+    fun getPlaceLatLng(id: String, placeRequest: (latLng: LatLng) -> Unit) {
+        // Define a Place ID.
 
-            // Construct a request object, passing the place ID and fields array.
-            val request = FetchPlaceRequest.newInstance(id, placeFields)
+        // Specify the fields to return.
+        val placeFields = listOf(Place.Field.LAT_LNG)
 
-            placesClient.fetchPlace(request).addOnSuccessListener { response ->
-                val place = response.place
-                place.latLng?.let{
-                    placeRequest(it)
+        // Construct a request object, passing the place ID and fields array.
+        val request = FetchPlaceRequest.newInstance(id, placeFields)
 
-                }
-            }.addOnFailureListener { exception ->
-                if (exception is ApiException) {
-                    val apiException = exception
-                    val statusCode = apiException.statusCode
-                    // Handle error with given status code.
-                   // Log.e(TAG, "Place not found: " + exception.message)
+        placesClient.fetchPlace(request).addOnSuccessListener { response ->
+            val place = response.place
+            place.latLng?.let {
+                placeRequest(it)
 
-                }
+            }
+        }.addOnFailureListener { exception ->
+            if (exception is ApiException) {
+                val apiException = exception
+                val statusCode = apiException.statusCode
+                // Handle error with given status code.
+                // Log.e(TAG, "Place not found: " + exception.message)
+
             }
         }
+    }
 
 }
 
@@ -106,7 +110,8 @@ class AutoCompleteSearchAdapter(private val placesListener: PlacesListener) :
     ListAdapter<PlaceDetails, AutoCompleteSearchAdapter.ViewHolder>(
         DiffCallBack
     ) {
-    private lateinit var context:Context
+
+    private lateinit var context: Context
 
     /**
      *diff util class to calculate the difference between two list if the the old list has changed
@@ -126,7 +131,7 @@ class AutoCompleteSearchAdapter(private val placesListener: PlacesListener) :
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)
-        this.context=recyclerView.context
+        this.context = recyclerView.context
     }
 
     class ViewHolder(private val binding: SearchLayoutAdapterBinding) :
@@ -137,16 +142,14 @@ class AutoCompleteSearchAdapter(private val placesListener: PlacesListener) :
                 /**
                  * when user click on the location we start getting its lat lng
                  */
-                AutoCompleteSearch.init(context).getPlaceLatLng(item.placeId){
-                    val mapModel= MapModel(it.latitude, it.longitude)
-                    placesListener.onClick(mapModel)
+                AutoCompleteSearch.init(context).getPlaceLatLng(item.placeId) {
+                    val mapModel = MapModel(it.latitude, it.longitude)
+                    placesListener.onClick(item.name,mapModel)
                 }
 
             }
 
         }
-
-
 
 
         /**
@@ -165,20 +168,21 @@ class AutoCompleteSearchAdapter(private val placesListener: PlacesListener) :
 
 
 
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder.from(
-            parent
-        )
+        return ViewHolder.from(parent)
     }
 
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(getItem(position),context,placesListener)
+        holder.bind(getItem(position), context, placesListener)
+        holder.itemView.contentDescription="${currentList[position]}"
     }
 
 
 }
-class PlacesListener(private val click:((mapModel: MapModel)->Unit)){
-    fun onClick(mapModel: MapModel)= click(mapModel)
+
+class PlacesListener(private val click: ((placeDetail:String,mapModel: MapModel) -> Unit)) {
+    fun onClick(placeDetail:String,mapModel: MapModel) = click(placeDetail,mapModel)
 
 }

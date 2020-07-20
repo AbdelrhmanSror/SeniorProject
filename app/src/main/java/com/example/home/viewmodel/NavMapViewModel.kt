@@ -131,6 +131,10 @@ class MapViewModel(application: Application) : AndroidViewModel(application) {
 
     }
 
+    fun navigateToSpecificLocation(mapModel: MapModel){
+        goToCurrentLocation()
+        applicationMap.navigateToSpecificLocation(mapModel)
+    }
     /**
      * we call this function to go to user current location
      */
